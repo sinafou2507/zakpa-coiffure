@@ -18,6 +18,7 @@ salon-coiffure/
 ├── Back office.command            ← ⭐ double-clic : gérer photos & vidéos (recommandé)
 ├── Mettre à jour la galerie.command ← double-clic : ancienne méthode
 ├── Publier le site.command        ← ⭐ double-clic : prépare le dossier à publier
+├── Mettre à jour GitHub.command   ← double-clic : envoie les modifications sur GitHub
 ├── public/                        ← ⭐ généré : le site prêt à mettre en ligne
 ├── robots.txt                     ← autorise l'indexation par Google
 ├── sitemap.xml                    ← plan du site pour Google
@@ -415,11 +416,34 @@ vercel --prod public
 1. Pousser le contenu de `public/` dans un dépôt GitHub
 2. `Settings → Pages → Source : branche main, dossier / (root)`
 
+> ⚠️ GitHub Pages n'est pas disponible pour un **dépôt privé** sur le plan
+> gratuit. On garde donc **GitHub pour la sauvegarde** et **Netlify pour le
+> site public**.
+
+### 4.3 Sauvegarde sur GitHub
+
+Le projet est relié à un dépôt GitHub privé, qui conserve l'historique de toutes
+les modifications.
+
+**Double-cliquez sur `Mettre à jour GitHub.command`** : il liste ce qui a changé,
+demande un message (Entrée = message automatique) puis envoie le tout.
+
+En ligne de commande, l'équivalent :
+
+```bash
+git add -A
+git commit -m "mise à jour"
+git push
+```
+
+> Le dossier `public/` (généré) et les sauvegardes `*.bak` ne sont pas
+> versionnés : voir `.gitignore`.
+
 **Ensuite, indispensable pour le SEO local :**
 - Acheter un nom de domaine (ex. `zakpacoiffure.ci`) et le relier à l'hébergeur
-- Remplacer `https://www.zakpa-coiffure.ci/` par le domaine réel dans
-  `index.html` (balises `canonical`, `og:url`, `og:image`), `robots.txt`
-  et `sitemap.xml`
+- Relancer `node tools/publier.mjs --domaine https://votre-domaine` pour
+  réécrire automatiquement `canonical`, `og:url`, `og:image`, `robots.txt`
+  et `sitemap.xml` dans la copie publiée
 - Créer / compléter la fiche **Google Business Profile** du salon et y
   indiquer le site : c'est la première source de clients pour un commerce local
 - Soumettre le sitemap dans **Google Search Console**
@@ -464,6 +488,7 @@ Le site a été structuré pour permettre ces ajouts sans tout refaire.
 |---|---|
 | **Gérer photos & vidéos** | double-cliquer sur **`Back office.command`** (glisser-déposer, renommer, supprimer) |
 | **Publier / rafraîchir le site en ligne** | **`Publier le site.command`** puis glisser le dossier `public/` sur l'hébergeur |
+| **Sauvegarder sur GitHub** | double-cliquer sur **`Mettre à jour GitHub.command`** |
 | **Changer une photo d'accueil / du salon / d'équipe** | back office → section **« Photos du site »** → **Remplacer** |
 | **Changer un prénom / une spécialité** | back office → section **« Équipe »** → modifier puis **Enregistrer les noms** |
 | **Gérer les avis clients** | back office → section **« Avis clients »** (vrais avis uniquement) |
