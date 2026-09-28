@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="900" height="900" role="img" aria-label="Savoir-faire">
+  <defs>
+    <linearGradient id="bgrfy8ol" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1618"/><stop offset="1" stop-color="#0b0a0b"/>
+    </linearGradient>
+    <radialGradient id="glrfy8ol" cx="50%" cy="38%" r="62%">
+      <stop offset="0" stop-color="#e6cf8f" stop-opacity=".20"/>
+      <stop offset="1" stop-color="#e6cf8f" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ptrfy8ol" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <line x1="0" y1="0" x2="0" y2="26" stroke="#ffffff" stroke-opacity=".022" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="900" fill="url(#bgrfy8ol)"/>
+  <rect width="900" height="900" fill="url(#ptrfy8ol)"/>
+  <rect width="900" height="900" fill="url(#glrfy8ol)"/>
+  <g transform="translate(306, 252) scale(2.88)"
+          stroke="#e6cf8f" fill="none"><path d="M50 18c22 0 34 16 34 32 0 18-14 30-28 30-13 0-22-9-22-20 0-10 8-17 17-17 8 0 13 5 13 11"
+    fill="none" stroke-width="3.2" stroke-linecap="round"/></g>
+  <g>
+         <line x1="428" y1="826" x2="472" y2="826"
+               stroke="#e6cf8f" stroke-width="1.4" opacity=".7"/>
+         <text x="450" y="852" text-anchor="middle" font-family="Georgia,'Times New Roman',serif"
+               font-size="46.8" fill="#f2efe9"
+               letter-spacing=".5">Savoir-faire</text>
+         <text x="450" y="876" text-anchor="middle" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+               font-size="25.2" fill="#8f8d88"
+               letter-spacing="2.4">PHOTO SECONDAIRE</text>
+       </g>
+</svg>

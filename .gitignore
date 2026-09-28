@@ -4,8 +4,8 @@
 # Sauvegardes créées par les outils (galerie, back office…)
 *.bak
 
-# Dossier généré par « Publier le site.command » (ne pas versionner)
-public/
-
 # Dépendances Node (au cas où)
 node_modules/
+
+# ⚠️ NE PAS ignorer « public/ » : c'est le dossier publié par Netlify.
+#    (voir netlify.toml et README.md → « Mise en ligne »)

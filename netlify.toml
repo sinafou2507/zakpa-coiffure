@@ -1,0 +1,18 @@
+# Configuration Netlify — ZAKPA COIFFURE
+# ============================================================================
+# Netlify publie le dossier « public/ », généré par :
+#
+#     node tools/publier.mjs          (ou « Publier le site.command »)
+#
+# Ce dossier ne contient que le site (index.html, assets/, robots.txt,
+# sitemap.xml) : ni les outils internes, ni le back office.
+#
+# ⚠️ Après une modification du site, relancez `node tools/publier.mjs`
+#    (ou double-cliquez sur « Publier le site.command ») avant d'envoyer sur
+#    GitHub : c'est ce qui met public/ à jour.
+# ============================================================================
+
+[build]
+  publish = "public"
+  # Aucune compilation : le site est statique, il suffit de le copier.
+  command = ""
