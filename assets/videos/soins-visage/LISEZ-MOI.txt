@@ -1,0 +1,18 @@
+DOSSIER « soins-visage »
+==============================
+
+Déposez ici vos vidéos, puis lancez à la racine du projet :
+
+    node tools/galerie.mjs
+
+Le site se met à jour tout seul : inutile de toucher au code.
+
+FORMATS CONSEILLÉS
+------------------
+· Photos  : JPEG ou WebP, largeur 1000 à 1400 px, moins de 300 Ko
+· Vidéos  : MP4 (H.264), format vertical 1080 × 1920, moins de 10 Mo
+· Nommez vos fichiers avec des mots simples, séparés par des tirets :
+  « tresses-collees.jpg » s'affichera « Tresses collées ».
+
+Pour retirer une vidéo, supprimez le fichier d'ici et
+relancez la commande.

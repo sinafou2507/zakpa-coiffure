@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Back office — ZAKPA COIFFURE</title>
+<style>
+  :root {
+    --bg:#0b0b0d; --bg-alt:#101014; --surface:#15151a; --surface-2:#1c1c22;
+    --text:#f4f1ea; --muted:#9d9a93; --dim:#6f6d68;
+    --gold:#d4af37; --gold-lt:#e8cf8a; --gold-dk:#b8912a;
+    --line:rgba(255,255,255,.08); --line-gold:rgba(212,175,55,.28);
+    --ok:#7fd1a3; --rouge:#e57373; --radius:18px; --radius-sm:12px;
+    --shadow:0 30px 70px -28px rgba(0,0,0,.85);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--gold-lt)}
+  h1,h2,h3{font-family:var(--serif);font-weight:600;margin:0}
+
+  /* En-tête */
+  .top{position:sticky;top:0;z-index:20;background:rgba(11,11,13,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .top__in{max-width:1160px;margin:0 auto;padding:.9rem clamp(1rem,4vw,2rem);display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .marque{display:flex;align-items:center;gap:.7rem;margin-right:auto}
+  .marque__b{width:34px;height:34px;border-radius:9px;background:linear-gradient(140deg,var(--gold),var(--gold-dk));display:grid;place-items:center;color:#1a1508;font-family:var(--serif);font-weight:700;font-size:1.05rem}
+  .marque__t{font-family:var(--serif);font-size:1.02rem;letter-spacing:.14em;text-transform:uppercase}
+  .marque__s{display:block;font-family:var(--sans);font-size:.64rem;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+
+  .btn{appearance:none;border:1px solid var(--line-gold);background:var(--surface);color:var(--text);font:inherit;font-size:.86rem;padding:.6rem 1rem;border-radius:var(--radius-sm);cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:.5rem;text-decoration:none}
+  .btn:hover{border-color:var(--gold);background:var(--surface-2)}
+  .btn--or{background:linear-gradient(140deg,var(--gold),var(--gold-dk));color:#1a1508;border-color:transparent;font-weight:600}
+  .btn--or:hover{filter:brightness(1.07)}
+  .btn--discret{border-color:var(--line);background:transparent;color:var(--muted);padding:.4rem .7rem;font-size:.8rem}
+  .btn--discret:hover{color:var(--text);border-color:var(--line-gold)}
+  .btn--danger{border-color:rgba(229,115,115,.4);color:var(--rouge)}
+  .btn--danger:hover{background:rgba(229,115,115,.12);border-color:var(--rouge)}
+  .btn:disabled{opacity:.5;pointer-events:none}
+
+  main{max-width:1160px;margin:0 auto;padding:1.6rem clamp(1rem,4vw,2rem) 5rem}
+
+  /* Onglets catégories */
+  .cats{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.3rem}
+  .cat{border:1px solid var(--line);background:var(--surface);color:var(--muted);font:inherit;font-size:.85rem;padding:.55rem .95rem;border-radius:999px;cursor:pointer;transition:.18s}
+  .cat:hover{color:var(--text);border-color:var(--line-gold)}
+  .cat[aria-pressed="true"]{background:linear-gradient(140deg,var(--gold),var(--gold-dk));color:#1a1508;border-color:transparent;font-weight:600}
+
+  .barre{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+  .seg button{border:0;background:transparent;color:var(--muted);font:inherit;font-size:.85rem;padding:.5rem 1.1rem;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--gold-lt);font-weight:600}
+
+  .zone{border:1.5px dashed var(--line-gold);border-radius:var(--radius);background:linear-gradient(180deg,rgba(212,175,55,.04),transparent);padding:2.2rem 1.4rem;text-align:center;cursor:pointer;transition:.18s}
+  .zone:hover,.zone.actif{background:rgba(212,175,55,.09);border-color:var(--gold)}
+  .zone__i{font-size:2rem;line-height:1}
+  .zone__t{margin-top:.6rem;font-size:1rem}
+  .zone__s{color:var(--muted);font-size:.84rem;margin-top:.25rem}
+  .zone input{display:none}
+
+  .options{display:flex;gap:1.2rem;flex-wrap:wrap;margin-top:.9rem;color:var(--muted);font-size:.85rem}
+  .options label{display:flex;align-items:center;gap:.5rem;cursor:pointer}
+  .options input{accent-color:var(--gold);width:16px;height:16px}
+
+  .file{list-style:none;margin:1.2rem 0 0;padding:0;display:grid;gap:.6rem}
+  .file li{display:grid;grid-template-columns:1fr auto;gap:.2rem .8rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.7rem .9rem}
+  .file__n{font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .file__e{grid-column:1/-1;font-size:.78rem;color:var(--muted)}
+  .file__e--ok{color:var(--ok)} .file__e--ko{color:var(--rouge)}
+  .file__p{grid-column:1/-1;height:5px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin-top:.35rem}
+  .file__p i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-dk),var(--gold));transition:width .2s}
+
+  h2.sec{font-size:1.15rem;margin:2.2rem 0 .9rem;display:flex;align-items:center;gap:.7rem}
+  h2.sec .n{font-family:var(--sans);font-size:.72rem;color:var(--gold);border:1px solid var(--line-gold);border-radius:999px;padding:.15rem .6rem}
+
+  .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1rem}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column}
+  .carte__v{position:relative;aspect-ratio:4/5;background:var(--surface-2);display:grid;place-items:center;overflow:hidden}
+  .carte__v img{width:100%;height:100%;object-fit:cover;display:block}
+  .carte__v .manque{color:var(--dim);font-size:.76rem;text-align:center;padding:1rem}
+  .badge{position:absolute;top:.5rem;left:.5rem;font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;background:rgba(11,11,13,.8);border:1px solid var(--line-gold);color:var(--gold-lt);border-radius:999px;padding:.15rem .5rem}
+  .carte__c{padding:.6rem .7rem;display:flex;flex-direction:column;gap:.5rem;flex:1}
+  .carte__n{font-size:.82rem;line-height:1.3;word-break:break-word}
+  .carte__m{font-size:.72rem;color:var(--dim);margin-top:auto}
+  .carte__a{display:flex;gap:.4rem}
+
+  .vide{color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:var(--radius);padding:2.5rem 1rem;font-size:.9rem}
+
+  .sep{border:0;border-top:1px solid var(--line);margin:2.6rem 0 0}
+  .aide{color:var(--muted);font-size:.88rem;margin:.35rem 0 1rem;max-width:70ch}
+
+  .equipe{display:grid;gap:.7rem}
+  .membre{display:grid;grid-template-columns:64px 1fr 1fr;gap:.8rem;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.7rem}
+  .membre__img{width:64px;height:80px;object-fit:cover;border-radius:8px;background:var(--surface-2);display:block}
+  .membre label{font-size:.68rem;color:var(--dim);display:block;margin-bottom:.2rem;letter-spacing:.04em}
+  .membre input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:.85rem;padding:.5rem .7rem}
+  .membre input:focus{outline:none;border-color:var(--gold)}
+  @media (max-width:620px){ .membre{grid-template-columns:48px 1fr} .membre__img{width:48px;height:60px} }
+
+  .avis{display:grid;gap:.6rem;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.8rem;margin-bottom:.7rem}
+  .avis__h{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .avis__etoiles{display:flex;gap:.15rem}
+  .avis__etoiles button{background:none;border:0;color:var(--dim);font-size:1.35rem;line-height:1;cursor:pointer;padding:0}
+  .avis__etoiles button.on{color:var(--gold)}
+  .avis__texte{width:100%;min-height:72px;resize:vertical;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:.86rem;padding:.6rem .7rem}
+  .avis__ligne{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+  .avis input{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:.85rem;padding:.5rem .7rem}
+  .avis input:focus,.avis__texte:focus{outline:none;border-color:var(--gold)}
+  .avis label{font-size:.68rem;color:var(--dim);display:block;margin-bottom:.15rem;letter-spacing:.04em}
+  .champ-lien{margin-top:1.3rem}
+  .champ-lien label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
+  .champ-lien input{width:100%;max-width:540px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:var(--text);font:inherit;font-size:.85rem;padding:.55rem .7rem}
+  .champ-lien input:focus{outline:none;border-color:var(--gold)}
+  @media (max-width:620px){ .avis__ligne{grid-template-columns:1fr} }
+
+  /* Notifications */
+  .toasts{position:fixed;right:1rem;bottom:1rem;z-index:60;display:flex;flex-direction:column;gap:.6rem;max-width:min(360px,90vw)}
+  .toast{background:var(--surface-2);border:1px solid var(--line-gold);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:.7rem .9rem;font-size:.84rem;box-shadow:var(--shadow);animation:in .2s var(--ease,ease)}
+  .toast--ko{border-left-color:var(--rouge)}
+  .toast--ok{border-left-color:var(--ok)}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}}
+
+  /* Fenêtre mise à jour */
+  dialog{border:1px solid var(--line-gold);border-radius:var(--radius);background:var(--surface);color:var(--text);max-width:min(680px,92vw);width:100%;padding:0}
+  dialog::backdrop{background:rgba(0,0,0,.6)}
+  .dlg__h{padding:1rem 1.2rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .dlg__b{padding:1rem 1.2rem}
+  pre{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius-sm);padding:.9rem;font-size:.78rem;white-space:pre-wrap;max-height:45vh;overflow:auto;margin:0}
+  .dlg__f{padding:.9rem 1.2rem;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:.6rem}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="marque">
+      <span class="marque__b">Z</span>
+      <span>
+        <span class="marque__t">Zakpa Coiffure</span>
+        <span class="marque__s">Back office</span>
+      </span>
+    </div>
+    <a class="btn btn--discret" href="/index.html" target="_blank" rel="noopener">Voir le site ↗</a>
+    <button class="btn" id="ouvrir">📂 Ouvrir le dossier</button>
+    <button class="btn btn--or" id="maj">✓ Mettre à jour le site</button>
+  </div>
+</header>
+
+<main>
+  <p style="color:var(--muted);font-size:.88rem;margin:0 0 1.2rem">
+    Glissez vos photos et vidéos ci-dessous. Elles sont rangées automatiquement
+    au bon endroit, puis le site est reconstruit. Rien ne quitte votre ordinateur.
+  </p>
+
+  <nav class="cats" id="cats" aria-label="Catégorie"></nav>
+
+  <section aria-label="Dépôt des fichiers">
+    <div class="barre">
+      <div class="seg" role="group" aria-label="Type de fichier">
+        <button id="tPhotos" aria-pressed="true">Photos</button>
+        <button id="tVideos" aria-pressed="false">Vidéos</button>
+      </div>
+    </div>
+
+    <div class="zone" id="zone" tabindex="0" role="button" aria-label="Choisir des fichiers">
+      <div class="zone__i">🖼️</div>
+      <div class="zone__t" id="zoneTitre">Glissez vos photos ici</div>
+      <div class="zone__s" id="zoneSous">ou cliquez pour parcourir · JPEG, PNG, WebP, HEIC</div>
+      <input type="file" id="champ" multiple>
+    </div>
+
+    <div class="options">
+      <label id="optOptimiserL"><input type="checkbox" id="optOptimiser" checked> Optimiser les images (max 1400 px, .heic → JPEG)</label>
+      <label id="optApercuL"><input type="checkbox" id="optApercu" checked> Générer l'aperçu des vidéos automatiquement</label>
+    </div>
+
+    <ul class="file" id="file"></ul>
+  </section>
+
+  <h2 class="sec">Fichiers en place <span class="n" id="compteur">0</span></h2>
+  <div id="liste"></div>
+
+  <hr class="sep">
+
+  <h2 class="sec">Photos du site</h2>
+  <p class="aide">
+    Remplacez les visuels fixes : photo d'accueil, photo du salon et portraits de l'équipe.
+    L'image est optimisée et le site mis à jour automatiquement.
+  </p>
+  <div class="grille" id="siteGrid"></div>
+
+  <h2 class="sec">Équipe — noms &amp; rôles</h2>
+  <p class="aide">Modifiez les prénoms et les spécialités affichés sous chaque portrait.</p>
+  <div class="equipe" id="equipeForm"></div>
+  <div class="barre" style="margin-top:1rem">
+    <button class="btn btn--or" id="equipeEnreg">Enregistrer les noms</button>
+  </div>
+
+  <hr class="sep">
+
+  <h2 class="sec">Avis clients</h2>
+  <p class="aide">
+    ⚠️ Uniquement de <strong>vrais avis</strong>, avec l'accord de vos clients.
+    Les trois avis affichés sont des exemples : remplacez-les ou supprimez-les.
+  </p>
+  <div id="avisListe"></div>
+  <div class="barre" style="margin-top:1rem">
+    <button class="btn" id="avisAjouter">➕ Ajouter un avis</button>
+    <button class="btn btn--or" id="avisEnreg">Enregistrer les avis</button>
+  </div>
+  <div class="champ-lien">
+    <label for="avisGoogle">Lien vers vos avis Google (facultatif) — ajoute un bouton « Voir nos avis Google »</label>
+    <input type="url" id="avisGoogle" placeholder="https://g.page/r/…">
+  </div>
+
+  <input type="file" id="champSite" accept="image/*,.heic,.heif" hidden>
+</main>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<dialog id="dlgMaj">
+  <div class="dlg__h">
+    <h3 style="font-size:1.05rem">Mise à jour du site</h3>
+    <button class="btn btn--discret" id="dlgFermer">Fermer</button>
+  </div>
+  <div class="dlg__b"><pre id="dlgSortie">…</pre></div>
+  <div class="dlg__f">
+    <a class="btn" href="/index.html" target="_blank" rel="noopener">Voir le site ↗</a>
+    <button class="btn btn--or" id="dlgOk">Terminé</button>
+  </div>
+</dialog>
+
+<script>
+(function () {
+  'use strict'
+
+  const $ = (s) => document.querySelector(s)
+  const CATS = []          // rempli depuis l'API
+  let cat = null
+  let type = 'photos'
+  let SITE = []
+  let EQUIPE = []
+  let AVIS = []
+  let AVIS_GOOGLE = ''
+
+  const IMAGES = ['image/']
+  const VIDEOS = ['video/']
+
+  /* ─────────────── Notifications ─────────────── */
+  function toast(message, genre) {
+    const el = document.createElement('div')
+    el.className = 'toast' + (genre ? ' toast--' + genre : '')
+    el.textContent = message
+    $('#toasts').appendChild(el)
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300) }, 4200)
+  }
+
+  const ko = (e) => toast(e.message || String(e), 'ko')
+
+  async function api(chemin, options) {
+    const r = await fetch(chemin, options)
+    let corps = null
+    try { corps = await r.json() } catch {}
+    if (!r.ok || (corps && corps.ok === false)) throw new Error((corps && corps.erreur) || ('Erreur ' + r.status))
+    return corps
+  }
+
+  /* ─────────────── Onglets catégories ─────────────── */
+  function dessinerCats() {
+    $('#cats').innerHTML = ''
+    for (const c of CATS) {
+      const b = document.createElement('button')
+      b.className = 'cat'
+      b.textContent = c.label
+      b.setAttribute('aria-pressed', String(c.dossier === cat))
+      b.onclick = () => { cat = c.dossier; dessiner() }
+      $('#cats').appendChild(b)
+    }
+  }
+
+  function catActuelle() { return CATS.find((c) => c.dossier === cat) }
+
+  /* ─────────────── Liste des fichiers ─────────────── */
+  const octets = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' Mo' : Math.max(1, Math.round(n / 1024)) + ' Ko'
+
+  function joliNom(nom) {
+    return nom.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').replace(/^\w/, (m) => m.toUpperCase())
+  }
+
+  function dessiner() {
+    dessinerCats()
+    const c = catActuelle()
+    if (!c) return
+    const elements = type === 'photos' ? c.photos : c.videos
+    $('#compteur').textContent = String(elements.length)
+
+    if (!elements.length) {
+      $('#liste').innerHTML = '<div class="vide">Aucun fichier dans cette catégorie pour le moment.<br>Déposez-en ci-dessus 👆</div>'
+      return
+    }
+
+    const grille = document.createElement('div')
+    grille.className = 'grille'
+
+    for (const f of elements) {
+      const carte = document.createElement('article')
+      carte.className = 'carte'
+
+      const apercu = type === 'photos' ? f.url : f.apercu
+      const visuel = document.createElement('div')
+      visuel.className = 'carte__v'
+      if (apercu) {
+        const img = document.createElement('img')
+        img.src = apercu
+        img.alt = ''
+        img.loading = 'lazy'
+        visuel.appendChild(img)
+      } else {
+        visuel.innerHTML = '<span class="manque">' + (type === 'videos' ? 'Aperçu à générer' : 'Fichier non affichable') + '</span>'
+      }
+      if (type === 'videos') {
+        const b = document.createElement('span')
+        b.className = 'badge'
+        b.textContent = f.apercuSeul ? 'Aperçu seul' : 'Vidéo'
+        visuel.appendChild(b)
+      }
+      carte.appendChild(visuel)
+
+      const corps = document.createElement('div')
+      corps.className = 'carte__c'
+      const nom = document.createElement('div')
+      nom.className = 'carte__n'
+      nom.textContent = joliNom(f.nom)
+      const meta = document.createElement('div')
+      meta.className = 'carte__m'
+      meta.textContent = octets(f.taille)
+      const actions = document.createElement('div')
+      actions.className = 'carte__a'
+
+      const bRen = document.createElement('button')
+      bRen.className = 'btn btn--discret'
+      bRen.textContent = 'Renommer'
+      bRen.onclick = async () => {
+        const nouveau = prompt('Nouveau nom (le titre du site en découle) :', f.nom.replace(/\.[a-z0-9]+$/i, ''))
+        if (!nouveau) return
+        try { await api('/api/renommer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dossier: cat, genre: type, nom: f.nom, nouveau }) }); toast('Renommé ✓', 'ok'); charger() } catch (e) { ko(e) }
+      }
+
+      const bSup = document.createElement('button')
+      bSup.className = 'btn btn--discret btn--danger'
+      bSup.textContent = 'Supprimer'
+      bSup.onclick = async () => {
+        if (!confirm('Supprimer « ' + joliNom(f.nom) + ' » ?')) return
+        try { await api('/api/supprimer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dossier: cat, genre: type, nom: f.nom }) }); toast('Supprimé', 'ok'); charger() } catch (e) { ko(e) }
+      }
+
+      actions.append(bRen, bSup)
+      corps.append(nom, meta, actions)
+      carte.appendChild(corps)
+      grille.appendChild(carte)
+    }
+
+    $('#liste').innerHTML = ''
+    $('#liste').appendChild(grille)
+  }
+
+  /* ─────────────── Photos du site (accueil, le salon, équipe) ─────────────── */
+  let slotActuel = null
+
+  function dessinerSite() {
+    const grille = $('#siteGrid')
+    grille.innerHTML = ''
+    for (const s of SITE) {
+      const carte = document.createElement('article')
+      carte.className = 'carte'
+
+      const visuel = document.createElement('div')
+      visuel.className = 'carte__v'
+      if (s.url) {
+        const img = document.createElement('img')
+        img.src = s.url
+        img.alt = ''
+        img.loading = 'lazy'
+        visuel.appendChild(img)
+      } else {
+        visuel.innerHTML = '<span class="manque">Aucun fichier</span>'
+      }
+      carte.appendChild(visuel)
+
+      const corps = document.createElement('div')
+      corps.className = 'carte__c'
+      const nom = document.createElement('div')
+      nom.className = 'carte__n'
+      nom.textContent = s.label
+      const meta = document.createElement('div')
+      meta.className = 'carte__m'
+      meta.textContent = s.parDefaut ? 'Visuel de remplacement' : (s.nom || '')
+      const actions = document.createElement('div')
+      actions.className = 'carte__a'
+
+      const bRemp = document.createElement('button')
+      bRemp.className = 'btn btn--discret'
+      bRemp.textContent = 'Remplacer'
+      bRemp.onclick = () => { slotActuel = s.id; $('#champSite').click() }
+
+      const bReinit = document.createElement('button')
+      bReinit.className = 'btn btn--discret'
+      bReinit.textContent = 'Réinitialiser'
+      bReinit.disabled = s.parDefaut
+      bReinit.onclick = async () => {
+        if (!confirm('Revenir au visuel de remplacement pour « ' + s.label + ' » ?')) return
+        try {
+          await api('/api/site-retirer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slot: s.id }) })
+          toast('Réinitialisé ✓', 'ok')
+          charger()
+        } catch (e) { ko(e) }
+      }
+
+      actions.append(bRemp, bReinit)
+      corps.append(nom, meta, actions)
+      carte.appendChild(corps)
+      grille.appendChild(carte)
+    }
+  }
+
+  function envoyerSite(slot, fichier) {
+    const q = new URLSearchParams({ slot, nom: fichier.name, optimiser: '1' })
+    return new Promise((ok, no) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', '/api/site-image?' + q.toString())
+      xhr.onload = () => {
+        let r = null
+        try { r = JSON.parse(xhr.responseText) } catch {}
+        if (xhr.status >= 200 && xhr.status < 300 && r && r.ok) ok(r)
+        else no(new Error((r && r.erreur) || ('Erreur ' + xhr.status)))
+      }
+      xhr.onerror = () => no(new Error('Connexion interrompue'))
+      xhr.send(fichier)
+    })
+  }
+
+  /* ─────────────── Équipe (noms & rôles) ─────────────── */
+  function dessinerEquipe() {
+    const box = $('#equipeForm')
+    const anciens = Array.from(box.querySelectorAll('.membre')).map((r) => ({
+      nom: r.querySelector('[data-champ="nom"]').value,
+      role: r.querySelector('[data-champ="role"]').value,
+    }))
+    box.innerHTML = ''
+    EQUIPE.forEach((m, i) => {
+      const val = anciens[i] ?? m
+      const row = document.createElement('div')
+      row.className = 'membre'
+
+      const img = document.createElement('img')
+      img.className = 'membre__img'
+      img.alt = ''
+      const slot = SITE.find((s) => s.id === 'team-' + (i + 1))
+      if (slot && slot.url) img.src = slot.url
+      row.appendChild(img)
+
+      for (const [champ, label] of [['nom', 'Prénom'], ['role', 'Spécialité']]) {
+        const cell = document.createElement('div')
+        const lab = document.createElement('label')
+        lab.textContent = label
+        const input = document.createElement('input')
+        input.type = 'text'
+        input.dataset.champ = champ
+        input.value = val[champ] ?? ''
+        input.maxLength = champ === 'nom' ? 60 : 80
+        cell.append(lab, input)
+        row.appendChild(cell)
+      }
+      box.appendChild(row)
+    })
+  }
+
+  /* ─────────────── Avis clients ─────────────── */
+  function avisDepuisDOM() {
+    const box = $('#avisListe')
+    if (box.dataset.pret !== '1') return null
+    return Array.from(box.querySelectorAll('.avis')).map((r) => ({
+      note: Number(r.dataset.note || 5),
+      texte: r.querySelector('[data-champ="texte"]').value,
+      nom: r.querySelector('[data-champ="nom"]').value,
+      prestation: r.querySelector('[data-champ="prestation"]').value,
+    }))
+  }
+
+  function ligneAvis(a) {
+    const row = document.createElement('div')
+    row.className = 'avis'
+    row.dataset.note = String(Math.min(5, Math.max(1, Number(a.note) || 5)))
+
+    const haut = document.createElement('div')
+    haut.className = 'avis__h'
+
+    const etoiles = document.createElement('div')
+    etoiles.className = 'avis__etoiles'
+    etoiles.setAttribute('role', 'group')
+    etoiles.setAttribute('aria-label', 'Note en étoiles')
+    const majEtoiles = () => {
+      const note = Number(row.dataset.note)
+      Array.from(etoiles.children).forEach((b, i) => b.classList.toggle('on', i < note))
+    }
+    for (let n = 1; n <= 5; n += 1) {
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.textContent = '★'
+      b.title = n + ' étoile' + (n > 1 ? 's' : '')
+      b.onclick = () => { row.dataset.note = String(n); majEtoiles() }
+      etoiles.appendChild(b)
+    }
+
+    const sup = document.createElement('button')
+    sup.type = 'button'
+    sup.className = 'btn btn--discret btn--danger'
+    sup.textContent = 'Supprimer'
+    sup.onclick = () => row.remove()
+
+    haut.append(etoiles, sup)
+
+    const texte = document.createElement('textarea')
+    texte.className = 'avis__texte'
+    texte.dataset.champ = 'texte'
+    texte.maxLength = 400
+    texte.placeholder = 'Texte de l’avis, tel que le client l’a écrit'
+    texte.value = a.texte ?? ''
+
+    const ligne = document.createElement('div')
+    ligne.className = 'avis__ligne'
+    for (const [champ, label, max] of [['nom', 'Nom (ou « Cliente »)', 40], ['prestation', 'Prestation', 60]]) {
+      const cell = document.createElement('div')
+      const lab = document.createElement('label')
+      lab.textContent = label
+      const input = document.createElement('input')
+      input.type = 'text'
+      input.dataset.champ = champ
+      input.maxLength = max
+      input.value = a[champ] ?? ''
+      cell.append(lab, input)
+      ligne.appendChild(cell)
+    }
+
+    row.append(haut, texte, ligne)
+    majEtoiles()
+    return row
+  }
+
+  function dessinerAvis(liste) {
+    const box = $('#avisListe')
+    box.dataset.pret = '1'
+    box.innerHTML = ''
+    if (!liste.length) {
+      box.innerHTML = '<div class="vide">Aucun avis pour le moment. Cliquez sur « Ajouter un avis ».</div>'
+      return
+    }
+    liste.forEach((a) => box.appendChild(ligneAvis(a)))
+  }
+
+  /* ─────────────── Dépôt des fichiers ─────────────── */
+  function majLibelles() {
+    const photos = type === 'photos'
+    $('#tPhotos').setAttribute('aria-pressed', String(photos))
+    $('#tVideos').setAttribute('aria-pressed', String(!photos))
+    $('#zoneTitre').textContent = photos ? 'Glissez vos photos ici' : 'Glissez vos vidéos ici'
+    $('#zoneSous').textContent = photos
+      ? 'ou cliquez pour parcourir · JPEG, PNG, WebP, HEIC'
+      : 'ou cliquez pour parcourir · MP4 (recommandé), WebM, MOV'
+    $('#champ').setAttribute('accept', photos ? 'image/*' : 'video/*,.mov,.m4v')
+    $('#optOptimiserL').style.display = photos ? '' : 'none'
+    $('#optApercuL').style.display = photos ? 'none' : ''
+  }
+
+  function ligneFichier(nom) {
+    const li = document.createElement('li')
+    li.innerHTML = '<span class="file__n"></span><span class="file__e">En attente…</span><span class="file__p"><i></i></span>'
+    li.querySelector('.file__n').textContent = nom
+    $('#file').appendChild(li)
+    return {
+      etat: (texte, genre) => { const e = li.querySelector('.file__e'); e.textContent = texte; e.className = 'file__e' + (genre ? ' file__e--' + genre : '') },
+      prog: (r) => { li.querySelector('.file__p i').style.width = Math.round(r * 100) + '%' },
+      barre: () => li.querySelector('.file__p').remove(),
+    }
+  }
+
+  function envoyer(dossier, genre, fichier, options) {
+    const o = options || {}
+    const q = new URLSearchParams({
+      dossier, genre,
+      nom: o.nom || fichier.name,
+      role: o.role || 'principal',
+      optimiser: o.optimiser === false ? '0' : '1',
+    })
+    return new Promise((ok, no) => {
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', '/api/enregistrer?' + q.toString())
+      if (o.surProgression) {
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) o.surProgression(e.loaded / e.total) }
+      }
+      xhr.onload = () => {
+        let r = null
+        try { r = JSON.parse(xhr.responseText) } catch {}
+        if (xhr.status >= 200 && xhr.status < 300 && r && r.ok) ok(r)
+        else no(new Error((r && r.erreur) || ('Erreur ' + xhr.status)))
+      }
+      xhr.onerror = () => no(new Error('Connexion interrompue'))
+      xhr.send(fichier)
+    })
+  }
+
+  /* Capture une image d'aperçu depuis une vidéo, dans le navigateur. */
+  async function capturerApercu(fichier) {
+    const url = URL.createObjectURL(fichier)
+    const video = document.createElement('video')
+    video.src = url
+    video.muted = true
+    video.playsInline = true
+    video.preload = 'metadata'
+    try {
+      await new Promise((ok, no) => {
+        video.onloadeddata = ok
+        video.onerror = () => no(new Error('lecture impossible'))
+        setTimeout(() => no(new Error('délai dépassé')), 12000)
+      })
+      const duree = isFinite(video.duration) ? video.duration : 2
+      video.currentTime = Math.min(1, duree / 3)
+      await new Promise((ok) => { video.onseeked = ok; setTimeout(ok, 3000) })
+      const max = 1400
+      const echelle = Math.min(1, max / Math.max(video.videoWidth, video.videoHeight))
+      const c = document.createElement('canvas')
+      c.width = Math.max(1, Math.round(video.videoWidth * echelle))
+      c.height = Math.max(1, Math.round(video.videoHeight * echelle))
+      c.getContext('2d').drawImage(video, 0, 0, c.width, c.height)
+      const blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.82))
+      if (!blob) throw new Error('capture impossible')
+      return blob
+    } finally {
+      URL.revokeObjectURL(url)
+    }
+  }
+
+  async function traiter(fichiers) {
+    const liste = Array.from(fichiers)
+    if (!liste.length) return
+    const dossier = cat
+    const genre = type
+    let ajouts = 0
+
+    for (const fichier of liste) {
+      const ui = ligneFichier(fichier.name)
+      ui.etat('Envoi…')
+      try {
+        if (genre === 'photos' && !fichier.type.startsWith('image/') && !/\.(heic|heif)$/i.test(fichier.name)) {
+          throw new Error('Ce n’est pas une image')
+        }
+        if (genre === 'videos' && !fichier.type.startsWith('video/') && !/\.(mp4|webm|mov|m4v)$/i.test(fichier.name)) {
+          throw new Error('Ce n’est pas une vidéo')
+        }
+
+        const r = await envoyer(dossier, genre, fichier, {
+          optimiser: $('#optOptimiser').checked,
+          surProgression: ui.prog,
+        })
+        ui.prog(1)
+        ui.etat('Enregistré : ' + r.nom, 'ok')
+        if (r.avertissement) toast(r.avertissement)
+        ajouts += 1
+
+        if (genre === 'videos' && $('#optApercu').checked) {
+          ui.etat('Génération de l’aperçu…')
+          try {
+            const base = r.nom.replace(/\.[a-z0-9]+$/i, '')
+            const blob = await capturerApercu(fichier)
+            await envoyer(dossier, genre, new File([blob], base + '.jpg', { type: 'image/jpeg' }), { nom: base + '.jpg', role: 'apercu' })
+            ui.etat('Enregistré : ' + r.nom + ' + aperçu', 'ok')
+            ui.barre()
+          } catch {
+            ui.etat('Enregistré : ' + r.nom + ' (aperçu non généré)', 'ok')
+            toast('Aperçu vidéo non généré : ajoutez une image du même nom si besoin.')
+            ui.barre()
+          }
+        } else {
+          ui.barre()
+        }
+      } catch (e) {
+        ui.barre()
+        ui.etat('Échec : ' + (e.message || e), 'ko')
+      }
+    }
+
+    await charger()
+    if (ajouts) await mettreAJour(false)
+  }
+
+  /* ─────────────── Chargement & mise à jour ─────────────── */
+  async function charger() {
+    const donnees = await api('/api/etat')
+    CATS.length = 0
+    CATS.push(...donnees.categories)
+    if (!cat) cat = CATS[0] && CATS[0].dossier
+    SITE = donnees.site ?? []
+    EQUIPE = donnees.equipe ?? []
+    AVIS = avisDepuisDOM() ?? (donnees.avis ?? [])
+    AVIS_GOOGLE = donnees.avisGoogle ?? ''
+    const lienSaisi = $('#avisGoogle').value.trim()
+    $('#avisGoogle').value = lienSaisi || AVIS_GOOGLE
+    dessiner()
+    dessinerSite()
+    dessinerEquipe()
+    dessinerAvis(AVIS)
+  }
+
+  async function mettreAJour(ouvrirFenetre) {
+    const bouton = $('#maj')
+    bouton.disabled = true
+    const ancien = bouton.textContent
+    bouton.textContent = '⏳ Mise à jour…'
+    try {
+      const r = await api('/api/maj', { method: 'POST' })
+      if (ouvrirFenetre !== false) {
+        $('#dlgSortie').textContent = r.sortie || 'Terminé.'
+        $('#dlgMaj').showModal()
+      } else {
+        toast('Site mis à jour ✓', 'ok')
+      }
+    } catch (e) {
+      ko(e)
+    } finally {
+      bouton.disabled = false
+      bouton.textContent = ancien
+    }
+  }
+
+  /* ─────────────── Câblage ─────────────── */
+  const zone = $('#zone')
+  const champ = $('#champ')
+
+  $('#tPhotos').onclick = () => { type = 'photos'; majLibelles(); dessiner() }
+  $('#tVideos').onclick = () => { type = 'videos'; majLibelles(); dessiner() }
+  $('#maj').onclick = () => mettreAJour(true)
+  $('#ouvrir').onclick = async () => { try { const r = await api('/api/ouvrir', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dossier: cat, genre: type }) }); if (r.erreur) toast(r.erreur) } catch (e) { ko(e) } }
+
+  zone.onclick = (e) => { if (e.target === champ) return; champ.click() }
+  zone.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); champ.click() } }
+  champ.onchange = () => { traiter(champ.files); champ.value = '' }
+
+  ;['dragenter', 'dragover'].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); zone.classList.add('actif') }))
+  ;['dragleave', 'drop'].forEach((ev) => zone.addEventListener(ev, (e) => { e.preventDefault(); zone.classList.remove('actif') }))
+  zone.addEventListener('drop', (e) => { if (e.dataTransfer && e.dataTransfer.files) traiter(e.dataTransfer.files) })
+  window.addEventListener('dragover', (e) => e.preventDefault())
+  window.addEventListener('drop', (e) => e.preventDefault())
+
+  $('#dlgFermer').onclick = () => $('#dlgMaj').close()
+  $('#dlgOk').onclick = () => $('#dlgMaj').close()
+
+  $('#champSite').onchange = async (e) => {
+    const fichier = e.target.files && e.target.files[0]
+    const slot = slotActuel
+    e.target.value = ''
+    if (!fichier || !slot) return
+    toast('Envoi de « ' + fichier.name + ' »…')
+    try {
+      const r = await envoyerSite(slot, fichier)
+      if (r.avertissement) toast(r.avertissement)
+      toast('Photo mise à jour ✓ (' + r.largeur + '×' + r.hauteur + ')', 'ok')
+      await charger()
+    } catch (err) { ko(err) }
+  }
+
+  $('#equipeEnreg').onclick = async () => {
+    const membres = Array.from($('#equipeForm').querySelectorAll('.membre')).map((r) => ({
+      nom: r.querySelector('[data-champ="nom"]').value,
+      role: r.querySelector('[data-champ="role"]').value,
+    }))
+    try {
+      await api('/api/equipe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ membres }) })
+      toast('Équipe enregistrée ✓', 'ok')
+      await charger()
+    } catch (e) { ko(e) }
+  }
+
+  $('#avisAjouter').onclick = () => {
+    const box = $('#avisListe')
+    if (box.dataset.pret !== '1') { box.dataset.pret = '1'; box.innerHTML = '' }
+    const vide = box.querySelector('.vide')
+    if (vide) vide.remove()
+    box.appendChild(ligneAvis({ note: 5, texte: '', nom: '', prestation: '' }))
+    box.lastElementChild.scrollIntoView({ block: 'nearest' })
+  }
+
+  $('#avisEnreg').onclick = async () => {
+    const avis = avisDepuisDOM() ?? []
+    const google = $('#avisGoogle').value.trim()
+    try {
+      await api('/api/avis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ avis, google }) })
+      toast(avis.length + ' avis enregistré' + (avis.length > 1 ? 's' : '') + ' ✓', 'ok')
+      await charger()
+    } catch (e) { ko(e) }
+  }
+
+  majLibelles()
+  charger().catch(ko)
+})()
+</script>
+</body>
+</html>

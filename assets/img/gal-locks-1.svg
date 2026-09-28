@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000" role="img" aria-label="Locks">
+  <defs>
+    <linearGradient id="bgie7z9k" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1a1618"/><stop offset="1" stop-color="#0b0a0b"/>
+    </linearGradient>
+    <radialGradient id="glie7z9k" cx="50%" cy="38%" r="62%">
+      <stop offset="0" stop-color="#e6cf8f" stop-opacity=".20"/>
+      <stop offset="1" stop-color="#e6cf8f" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ptie7z9k" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <line x1="0" y1="0" x2="0" y2="26" stroke="#ffffff" stroke-opacity=".022" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bgie7z9k)"/>
+  <rect width="800" height="1000" fill="url(#ptie7z9k)"/>
+  <rect width="800" height="1000" fill="url(#glie7z9k)"/>
+  <g transform="translate(272, 312) scale(2.56)"
+          stroke="#e6cf8f" fill="none"><g fill="none" stroke-width="3.2" stroke-linecap="round">
+      <path d="M28 16c13 13-13 25 0 38s-13 25 0 38"/>
+      <path d="M50 16c13 13-13 25 0 38s-13 25 0 38"/>
+      <path d="M72 16c13 13-13 25 0 38s-13 25 0 38"/>
+    </g></g>
+  <g>
+         <line x1="378" y1="926" x2="422" y2="926"
+               stroke="#e6cf8f" stroke-width="1.4" opacity=".7"/>
+         <text x="400" y="952" text-anchor="middle" font-family="Georgia,'Times New Roman',serif"
+               font-size="41.6" fill="#f2efe9"
+               letter-spacing=".5">Locks</text>
+         <text x="400" y="976" text-anchor="middle" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+               font-size="22.400000000000002" fill="#8f8d88"
+               letter-spacing="2.4">VOTRE PHOTO ICI</text>
+       </g>
+</svg>

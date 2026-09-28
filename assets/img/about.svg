@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="1000" height="750" role="img" aria-label="Le salon">
+  <defs>
+    <linearGradient id="bgi89tij" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1b1a17"/><stop offset="1" stop-color="#0b0b0c"/>
+    </linearGradient>
+    <radialGradient id="gli89tij" cx="50%" cy="38%" r="62%">
+      <stop offset="0" stop-color="#d8a866" stop-opacity=".20"/>
+      <stop offset="1" stop-color="#d8a866" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="pti89tij" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <line x1="0" y1="0" x2="0" y2="26" stroke="#ffffff" stroke-opacity=".022" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1000" height="750" fill="url(#bgi89tij)"/>
+  <rect width="1000" height="750" fill="url(#pti89tij)"/>
+  <rect width="1000" height="750" fill="url(#gli89tij)"/>
+  <g transform="translate(380, 210) scale(2.4)"
+          stroke="#d8a866" fill="none"><circle cx="50" cy="35" r="16" fill="#d8a866"/>
+    <path d="M19 86c0-19 14-29 31-29s31 10 31 29" fill="#d8a866"/></g>
+  <g>
+         <line x1="478" y1="676" x2="522" y2="676"
+               stroke="#d8a866" stroke-width="1.4" opacity=".7"/>
+         <text x="500" y="702" text-anchor="middle" font-family="Georgia,'Times New Roman',serif"
+               font-size="39" fill="#f2efe9"
+               letter-spacing=".5">Le salon</text>
+         <text x="500" y="726" text-anchor="middle" font-family="-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+               font-size="21" fill="#8f8d88"
+               letter-spacing="2.4">PHOTO DU SALON</text>
+       </g>
+</svg>

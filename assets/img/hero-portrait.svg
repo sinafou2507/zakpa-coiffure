@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" width="900" height="1200" role="img" aria-label="visuel de remplacement">
+  <defs>
+    <linearGradient id="bgd9vbnd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17171c"/><stop offset="1" stop-color="#0a0a0c"/>
+    </linearGradient>
+    <radialGradient id="gld9vbnd" cx="50%" cy="38%" r="62%">
+      <stop offset="0" stop-color="#e0c164" stop-opacity=".20"/>
+      <stop offset="1" stop-color="#e0c164" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="ptd9vbnd" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <line x1="0" y1="0" x2="0" y2="26" stroke="#ffffff" stroke-opacity=".022" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="900" height="1200" fill="url(#bgd9vbnd)"/>
+  <rect width="900" height="1200" fill="url(#ptd9vbnd)"/>
+  <rect width="900" height="1200" fill="url(#gld9vbnd)"/>
+  <circle cx="450" cy="528" r="165.6" fill="none" stroke="#e0c164" stroke-width="2" opacity=".8"/>
+       <text x="450" y="528" text-anchor="middle" dominant-baseline="central"
+             font-family="Georgia,'Times New Roman',serif" font-size="216" fill="#e0c164">Z</text>
+  
+</svg>
