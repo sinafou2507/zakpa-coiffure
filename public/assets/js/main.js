@@ -284,6 +284,78 @@
   })
 
   /* ════════════════════════════════════════════════════════════════════
+     7 bis. TITRE QUI S'ÉCRIT TOUT SEUL (effet machine à écrire)
+     Le vrai titre reste dans le HTML (Google, lecteurs d'écran) : on ne
+     fait que le « rejouer » visuellement. La 2ᵉ ligne alterne ensuite
+     entre plusieurs formules. Désactivé si l'internaute préfère éviter
+     les animations.
+     ════════════════════════════════════════════════════════════════════ */
+  const titre = $('.hero h1')
+  const animer = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (titre && titre.querySelector('em') && animer) {
+    const ligne1 = (titre.firstChild?.textContent || '').trim()
+    const FORMULES = [
+      titre.querySelector('em').textContent.trim(),
+      'pour toute la famille.',
+      'du cheveu aux ongles.',
+      'à Yopougon Ananeraie.',
+    ]
+
+    titre.setAttribute('aria-label', titre.textContent.replace(/\s+/g, ' ').trim())
+    titre.innerHTML =
+      '<span aria-hidden="true"><span class="type-1"></span><br><em class="type-2"></em></span>'
+    const t1 = $('.type-1', titre)
+    const t2 = $('.type-2', titre)
+    const curseur = document.createElement('span')
+    curseur.className = 'type-caret'
+    curseur.setAttribute('aria-hidden', 'true')
+
+    // Réserve la hauteur la plus grande pour que la page ne « saute » pas.
+    function reserver() {
+      titre.style.minHeight = ''
+      const a = t1.textContent, b = t2.textContent
+      t1.textContent = ligne1
+      let max = 0
+      FORMULES.forEach((f) => { t2.textContent = f; max = Math.max(max, titre.offsetHeight) })
+      t1.textContent = a; t2.textContent = b
+      titre.style.minHeight = max + 'px'
+    }
+    reserver()
+    window.addEventListener('resize', reserver)
+
+    const pause = (ms) => new Promise((r) => setTimeout(r, ms))
+    async function taper(el, texte, vitesse) {
+      el.after(curseur)
+      for (let i = 1; i <= texte.length; i += 1) {
+        el.textContent = texte.slice(0, i)
+        await pause(vitesse + Math.random() * 40)
+      }
+    }
+    async function effacer(el) {
+      while (el.textContent.length) {
+        el.textContent = el.textContent.slice(0, -1)
+        await pause(28)
+      }
+    }
+
+    ;(async () => {
+      await pause(350)
+      await taper(t1, ligne1, 55)
+      await pause(250)
+      await taper(t2, FORMULES[0], 65)
+      let i = 0
+      for (;;) {
+        await pause(3200)
+        await effacer(t2)
+        i = (i + 1) % FORMULES.length
+        await pause(300)
+        await taper(t2, FORMULES[i], 65)
+      }
+    })()
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
      8. APPARITION AU DÉFILEMENT
      ════════════════════════════════════════════════════════════════════ */
   const reveals = $$('.reveal')

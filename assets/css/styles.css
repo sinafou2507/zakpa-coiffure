@@ -552,6 +552,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .lightbox__slot code { color: var(--gold-lt); word-break: break-all; }
 
 /* ─────────────────────────── 16. ANIMATIONS ─────────────────────────── */
+/* Titre machine à écrire : curseur doré clignotant */
+.type-caret {
+  display: inline-block; width: 3px; height: .82em; margin-left: .08em;
+  background: var(--gold); vertical-align: -.06em; border-radius: 2px;
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+
+/* Accueil : les éléments arrivent en cascade au chargement */
+@keyframes monter { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes zoomer { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+@keyframes flotter { 50% { transform: translateY(-10px); } }
+.js .hero .eyebrow        { animation: monter .8s var(--ease) backwards .1s; }
+.js .hero__text .lede     { animation: monter .9s var(--ease) backwards 1.5s; }
+.js .hero__cta            { animation: monter .9s var(--ease) backwards 1.7s; }
+.js .hero__trust          { animation: monter .9s var(--ease) backwards 1.9s; }
+.js .hero__figure--main   { animation: zoomer 1.2s var(--ease) both .3s; }
+.js .hero__figure--sub    { animation: zoomer 1s var(--ease) both .9s, flotter 6s ease-in-out 2s infinite; }
+.js .hero__badge          { animation: monter .8s var(--ease) backwards 1.2s; }
+.js .hero__badge + .hero__badge { animation-delay: 1.4s; }
+.hero__figure--main img   { animation: respirer 14s ease-in-out infinite alternate; }
+@keyframes respirer { from { transform: scale(1); } to { transform: scale(1.07); } }
+
 .js .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
 .js .reveal.is-visible { opacity: 1; transform: none; }
 
