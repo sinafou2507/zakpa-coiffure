@@ -16,3 +16,13 @@
   publish = "public"
   # Aucune compilation : le site est statique, il suffit de le copier.
   command = ""
+
+# ── Sécurité : en-têtes envoyés avec chaque page ─────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+

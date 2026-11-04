@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://joyeux-cascaron-9b403d.netlify.app/sitemap.xml
+Sitemap: https://zakpa-coiffure.netlify.app/sitemap.xml

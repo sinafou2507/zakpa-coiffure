@@ -129,6 +129,13 @@
   const chips = $$('.chip')
   const galleryItems = $$('.gallery__item')
 
+  // Filtres sans aucune photo : masqués (ils réapparaissent dès qu'une
+  // photo de la catégorie est ajoutée).
+  chips.forEach((chip) => {
+    const f = chip.dataset.filter
+    if (f !== 'all' && !galleryItems.some((i) => i.dataset.cat === f)) chip.hidden = true
+  })
+
   chips.forEach((chip) => {
     chip.setAttribute('aria-pressed', String(chip.classList.contains('is-active')))
     chip.addEventListener('click', () => {
@@ -338,6 +345,17 @@
   /* ════════════════════════════════════════════════════════════════════
      10. DIVERS
      ════════════════════════════════════════════════════════════════════ */
+  // Équipe : on masque les fiches pas encore remplies (nom vide ou
+  // « À compléter ») pour ne montrer que les vrais membres.
+  const members = $$('.member')
+  members.forEach((m) => {
+    const nom = (m.querySelector('h4')?.textContent || '').trim()
+    if (!nom || /^à compléter$/i.test(nom)) m.hidden = true
+  })
+  if (members.length && members.every((m) => m.hidden)) {
+    $('.team__title')?.setAttribute('hidden', '')
+  }
+
   const year = $('#year')
   if (year) year.textContent = String(new Date().getFullYear())
 })()

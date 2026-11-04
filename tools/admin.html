@@ -144,6 +144,7 @@
     <a class="btn btn--discret" href="/index.html" target="_blank" rel="noopener">Voir le site ↗</a>
     <button class="btn" id="ouvrir">📂 Ouvrir le dossier</button>
     <button class="btn btn--or" id="maj">✓ Mettre à jour le site</button>
+    <button class="btn" id="publier">🚀 Publier en ligne</button>
   </div>
 </header>
 
@@ -212,6 +213,19 @@
   <div class="champ-lien">
     <label for="avisGoogle">Lien vers vos avis Google (facultatif) — ajoute un bouton « Voir nos avis Google »</label>
     <input type="url" id="avisGoogle" placeholder="https://g.page/r/…">
+  </div>
+
+  <hr class="sep">
+
+  <h2 class="sec">Publier sur Internet</h2>
+  <p class="aide">
+    Prépare le dossier <strong>public/</strong> (la version du site à mettre en ligne),
+    puis ouvre la page de l'hébergeur : il ne reste qu'à <strong>glisser le dossier
+    « public »</strong> qui s'ouvre dans le Finder.
+  </p>
+  <div class="barre">
+    <button class="btn btn--or" id="publierBas">🚀 Préparer et publier</button>
+    <a class="btn" id="lienSite" href="#" target="_blank" rel="noopener" hidden>Ouvrir le site en ligne ↗</a>
   </div>
 
   <input type="file" id="champSite" accept="image/*,.heic,.heif" hidden>
@@ -706,10 +720,34 @@
     AVIS_GOOGLE = donnees.avisGoogle ?? ''
     const lienSaisi = $('#avisGoogle').value.trim()
     $('#avisGoogle').value = lienSaisi || AVIS_GOOGLE
+    const publieSite = donnees.sitePublic ?? null
+    $('#lienSite').hidden = !publieSite
+    if (publieSite) $('#lienSite').href = publieSite
     dessiner()
     dessinerSite()
     dessinerEquipe()
     dessinerAvis(AVIS)
+  }
+
+  /* ─────────────── Publication en ligne ─────────────── */
+  async function publier() {
+    const boutons = [$('#publier'), $('#publierBas')]
+    boutons.forEach((b) => { if (b) { b.disabled = true } })
+    toast('Préparation du dossier à publier…')
+    try {
+      const r = await api('/api/publier', { method: 'POST' })
+      $('#dlgSortie').textContent = r.sortie || 'Terminé.'
+      const lien = $('#dlgOk')
+      lien.textContent = 'Terminé'
+      $('#dlgMaj').showModal()
+      $('#lienSite').hidden = !r.domaine
+      if (r.domaine) $('#lienSite').href = r.domaine
+      toast('Dossier « public » prêt — glissez-le sur la page de l’hébergeur', 'ok')
+    } catch (e) {
+      ko(e)
+    } finally {
+      boutons.forEach((b) => { if (b) { b.disabled = false } })
+    }
   }
 
   async function mettreAJour(ouvrirFenetre) {
@@ -740,6 +778,8 @@
   $('#tPhotos').onclick = () => { type = 'photos'; majLibelles(); dessiner() }
   $('#tVideos').onclick = () => { type = 'videos'; majLibelles(); dessiner() }
   $('#maj').onclick = () => mettreAJour(true)
+  $('#publier').onclick = publier
+  $('#publierBas').onclick = publier
   $('#ouvrir').onclick = async () => { try { const r = await api('/api/ouvrir', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dossier: cat, genre: type }) }); if (r.erreur) toast(r.erreur) } catch (e) { ko(e) } }
 
   zone.onclick = (e) => { if (e.target === champ) return; champ.click() }

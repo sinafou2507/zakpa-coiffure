@@ -41,7 +41,7 @@ if (!/^https?:\/\//.test(domaine)) {
 rmSync(OUT, { recursive: true, force: true })
 mkdirSync(OUT, { recursive: true })
 
-const FICHIERS = ['index.html', 'robots.txt', 'sitemap.xml']
+const FICHIERS = ['index.html', 'mentions-legales.html', 'robots.txt', 'sitemap.xml']
 for (const f of FICHIERS) {
   if (!existsSync(join(ROOT, f))) {
     console.error(`\n❌ Fichier manquant : ${f}`)
@@ -56,7 +56,7 @@ function nettoyer(dir) {
   for (const entree of readdirSync(dir)) {
     const chemin = join(dir, entree)
     if (statSync(chemin).isDirectory()) nettoyer(chemin)
-    else if (entree === '.DS_Store' || entree === 'LISEZ-MOI.txt') rmSync(chemin, { force: true })
+    else if (entree === '.DS_Store' || entree === 'LISEZ-MOI.txt' || entree.endsWith('.bak') || entree.includes('.avant-')) rmSync(chemin, { force: true })
   }
 }
 nettoyer(OUT)

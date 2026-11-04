@@ -150,8 +150,17 @@ function format(dim) {
 /* ───────────── Construction du HTML ───────────── */
 const echapper = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;')
 
+/* Noms de fichiers « d'appareil » (WhatsApp, IMG_1234, DSC…) : on affiche
+   plutôt le nom de la catégorie, plus présentable. */
+const NOM_AUTO = /^(whatsapp|img|dsc|pxl|photo|image|screenshot|capture|vid|video)[\s\d-]|^\d/i
+function legende(chemin, cat) {
+  const t = titre(chemin)
+  if (!NOM_AUTO.test(t)) return t
+  return CATEGORIES.find((c) => c.cat === cat)?.label ?? 'Réalisation'
+}
+
 function blocPhoto(cheminRel, dim, cat) {
-  const nom = titre(cheminRel)
+  const nom = legende(cheminRel, cat)
   const format_ = format(dim)
   const w = dim?.w ?? 800
   const h = dim?.h ?? 1000
@@ -163,7 +172,7 @@ function blocPhoto(cheminRel, dim, cat) {
 }
 
 function blocVideo(cheminVideo, cheminPoster, dim, cat) {
-  const nom = titre(cheminPoster ?? cheminVideo)
+  const nom = legende(cheminPoster ?? cheminVideo, cat)
   const format_ = format(dim)
   const poster = cheminPoster ? ` data-poster="${cheminPoster}"` : ''
   const apercu = cheminPoster

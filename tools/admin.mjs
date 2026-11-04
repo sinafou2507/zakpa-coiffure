@@ -35,6 +35,9 @@ import { pipeline } from 'node:stream/promises'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GALERIE = join(ROOT, 'tools', 'galerie.mjs')
 const PLACEHOLDERS = join(ROOT, 'tools', 'gen-placeholders.mjs')
+const PUBLIER = join(ROOT, 'tools', 'publier.mjs')
+const DOSSIER_PUBLIC = join(ROOT, 'public')
+const DOMAINE_FICHIER = join(ROOT, 'tools', 'domaine.txt')
 const INDEX = join(ROOT, 'index.html')
 const PAGE = join(ROOT, 'tools', 'admin.html')
 const IMG = join(ROOT, 'assets', 'img')
@@ -367,6 +370,7 @@ function etat() {
     equipe: lireEquipe(),
     avis: lireAvis(),
     avisGoogle: lireLienGoogle(),
+    sitePublic: (() => { try { return readFileSync(DOMAINE_FICHIER, 'utf8').trim() || null } catch { return null } })(),
   }
 }
 
@@ -566,8 +570,7 @@ async function apiSiteRetirer(req, res) {
   return repondre(res, 200, { ok: true })
 }
 
-/* Met à jour les avis clients (et le lien Google facultatif). */
-async function apiAvis(req, res) {
+/* Met à jour les avis clients (et le lien Google facultatif). */async function apiAvis(req, res) {
   let corps
   try { corps = await lireJSON(req) } catch (e) { return repondre(res, 400, { ok: false, erreur: e.message }) }
   if (!Array.isArray(corps.avis)) return repondre(res, 400, { ok: false, erreur: 'Données manquantes' })
@@ -617,8 +620,25 @@ async function apiMaj(res) {
   })
 }
 
-async function apiOuvrir(req, res) {
-  const corps = await lireJSON(req).catch(() => ({}))
+/* Prépare le dossier « public/ » et ouvre le Finder dessus. */
+async function apiPublier(res) {
+  const { err, stdout, stderr } = await execFileP(process.execPath, [GALERIE], { cwd: ROOT })
+  if (err) return repondre(res, 500, { ok: false, erreur: 'Échec de la galerie : ' + (stderr || stdout).trim() })
+
+  const r = await execFileP(process.execPath, [PUBLIER], { cwd: ROOT })
+  if (r.err) return repondre(res, 500, { ok: false, erreur: 'Échec de la préparation : ' + (r.stderr || r.stdout).trim() })
+
+  let domaine = ''
+  try { domaine = readFileSync(DOMAINE_FICHIER, 'utf8').trim() } catch {}
+
+  if (SUR_MAC && existsSync(DOSSIER_PUBLIC)) {
+    spawn('open', [DOSSIER_PUBLIC], { detached: true, stdio: 'ignore' }).unref()
+  }
+
+  return repondre(res, 200, { ok: true, sortie: (stdout + '\n' + r.stdout).trim(), domaine })
+}
+
+async function apiOuvrir(req, res) {  const corps = await lireJSON(req).catch(() => ({}))
   let dir
   try { dir = dossierDe(corps.dossier, corps.genre) } catch (e) { return repondre(res, 400, { ok: false, erreur: e.message }) }
   if (!SUR_MAC) return repondre(res, 200, { ok: false, erreur: 'Ouverture du Finder disponible sur macOS uniquement.' })
@@ -638,6 +658,23 @@ function servirFichier(res, chemin) {
 
 const serveur = createServer(async (req, res) => {
   try {
+    // Sécurité : le back office ne répond qu'à lui-même.
+    // · Host : bloque les sites qui se feraient passer pour « localhost »
+    //   (attaque dite de « DNS rebinding »).
+    // · Origin : une page web ouverte dans un autre onglet ne peut pas
+    //   envoyer d'ordres (supprimer, renommer, réécrire les avis…).
+    const hote = String(req.headers.host ?? '').replace(/:\d+$/, '')
+    if (!['localhost', '127.0.0.1', '[::1]'].includes(hote)) {
+      return repondre(res, 403, 'Interdit', 'text/plain; charset=utf-8')
+    }
+    if (req.method !== 'GET' && req.method !== 'HEAD') {
+      const origine = req.headers.origin
+      const permises = [`http://localhost:${port}`, `http://127.0.0.1:${port}`]
+      if (!origine || !permises.includes(origine)) {
+        return repondre(res, 403, { ok: false, erreur: 'Requête refusée (origine inconnue)' })
+      }
+    }
+
     const url = new URL(req.url, 'http://localhost')
     const chemin = decodeURIComponent(url.pathname)
 
@@ -653,19 +690,22 @@ const serveur = createServer(async (req, res) => {
     if (chemin === '/api/avis' && req.method === 'POST') return apiAvis(req, res)
     if (chemin === '/api/maj' && req.method === 'POST') return apiMaj(res)
     if (chemin === '/api/ouvrir' && req.method === 'POST') return apiOuvrir(req, res)
+    if (chemin === '/api/publier' && req.method === 'POST') return apiPublier(res)
 
     // Fichiers du projet (aperçus, site…), sans sortir du dossier racine.
     const fichier = resolve(ROOT, '.' + chemin)
     if (!estDans(fichier, ROOT)) return repondre(res, 403, 'Interdit', 'text/plain; charset=utf-8')
+    // Jamais les fichiers cachés (.git, .env…).
+    if (chemin.split('/').some((p) => p.startsWith('.'))) return repondre(res, 403, 'Interdit', 'text/plain; charset=utf-8')
     return servirFichier(res, fichier)
   } catch (e) {
     return repondre(res, 500, { ok: false, erreur: e.message })
   }
 })
 
-/* Choix du port : 4173 par défaut, puis les suivants si occupés. */
+/* Choix du port : 4317 par défaut, puis les suivants si occupés. */
 const portArg = process.argv.indexOf('--port')
-let port = portArg !== -1 ? Number(process.argv[portArg + 1]) : 4173
+let port = portArg !== -1 ? Number(process.argv[portArg + 1]) : 4317
 if (!Number.isFinite(port)) port = 4173
 
 let essais = 0

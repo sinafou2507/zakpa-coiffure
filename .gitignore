@@ -9,3 +9,7 @@ node_modules/
 
 # ⚠️ NE PAS ignorer « public/ » : c'est le dossier publié par Netlify.
 #    (voir netlify.toml et README.md → « Mise en ligne »)
+
+# Copies de sécurité manuelles (ancien design, anciennes versions)
+*.avant-*
+*.avant-redesign.css
