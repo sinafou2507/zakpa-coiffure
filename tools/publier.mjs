@@ -41,7 +41,7 @@ if (!/^https?:\/\//.test(domaine)) {
 rmSync(OUT, { recursive: true, force: true })
 mkdirSync(OUT, { recursive: true })
 
-const FICHIERS = ['index.html', 'mentions-legales.html', 'robots.txt', 'sitemap.xml']
+const FICHIERS = ['index.html', 'robots.txt', 'sitemap.xml']
 for (const f of FICHIERS) {
   if (!existsSync(join(ROOT, f))) {
     console.error(`\n❌ Fichier manquant : ${f}`)
