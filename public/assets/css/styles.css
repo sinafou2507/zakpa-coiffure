@@ -161,11 +161,17 @@ button { font: inherit; color: inherit; cursor: pointer; }
   transition: background .3s, border-color .3s, backdrop-filter .3s;
   border-bottom: 1px solid transparent;
 }
-.site-header.is-scrolled {
+/* Le flou est posé sur une couche à part : posé sur l'en-tête lui-même,
+   il « enfermerait » le menu mobile (position: fixed) dans la barre du haut. */
+.site-header::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: transparent; transition: background .3s;
+}
+.site-header.is-scrolled { border-bottom-color: var(--line); }
+.site-header.is-scrolled::before {
   background: rgba(12, 10, 9, .82);
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
-  border-bottom-color: var(--line);
 }
 .header__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
 
@@ -596,7 +602,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 @media (max-width: 900px) {
   :root { --header-h: 68px; }
-  .site-header { background: rgba(12, 10, 9, .85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: var(--line); }
+  .site-header { border-bottom-color: var(--line); }
+  .site-header::before { background: rgba(12, 10, 9, .85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  body.no-scroll .mobile-bar { display: none; }
   .nav-toggle { display: inline-flex; }
   .nav {
     position: fixed; inset: var(--header-h) 0 0; z-index: 99;

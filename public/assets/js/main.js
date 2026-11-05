@@ -47,6 +47,7 @@
     navToggle.setAttribute('aria-expanded', String(open))
     navToggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu')
     document.body.classList.toggle('no-scroll', open)
+    navToggle.querySelector('use')?.setAttribute('href', open ? '#i-close' : '#i-menu')
   }
 
   navToggle?.addEventListener('click', () => setNav(!nav.classList.contains('is-open')))
