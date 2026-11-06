@@ -149,8 +149,41 @@
       galleryItems.forEach((item) => {
         item.classList.toggle('is-hidden', !(filter === 'all' || item.dataset.cat === filter))
       })
+      galerieOuverte = false
+      limiterGalerie()
     })
   })
+
+  /* « Voir plus » : seules les 2 premières rangées sont affichées au départ,
+     pour que la section reste courte même avec beaucoup de réalisations. */
+  const grille = $('.gallery')
+  let galerieOuverte = false
+  let boutonPlus = null
+  if (grille && galleryItems.length) {
+    const p = document.createElement('p')
+    p.className = 'gallery__more'
+    p.innerHTML = '<button type="button" class="btn btn--ghost"></button>'
+    grille.after(p)
+    boutonPlus = p
+    p.firstElementChild.addEventListener('click', () => { galerieOuverte = true; limiterGalerie() })
+  }
+  function limiterGalerie() {
+    if (!grille || !boutonPlus) return
+    const colonnes = getComputedStyle(grille).gridTemplateColumns.split(' ').filter(Boolean).length || 3
+    const max = galerieOuverte ? Infinity : colonnes * 2
+    let n = 0
+    galleryItems.forEach((item) => {
+      if (item.classList.contains('is-hidden')) { item.classList.remove('is-extra'); return }
+      n += 1
+      item.classList.toggle('is-extra', n > max)
+    })
+    const caches = n - Math.min(n, max)
+    boutonPlus.hidden = caches <= 0
+    boutonPlus.firstElementChild.textContent = `Voir plus de réalisations (${caches})`
+  }
+  limiterGalerie()
+  let minuteurGalerie
+  window.addEventListener('resize', () => { clearTimeout(minuteurGalerie); minuteurGalerie = setTimeout(limiterGalerie, 150) })
 
   const visibleItems = () => galleryItems.filter((i) => !i.classList.contains('is-hidden'))
 

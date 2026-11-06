@@ -343,7 +343,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .chip:hover { border-color: var(--gold); color: var(--text); }
 .chip.is-active { background: var(--gold-grad); border-color: transparent; color: #1a1408; }
 
-.gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; }
+.gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+.gallery__item.is-extra { display: none; }
+.gallery__more { display: flex; justify-content: center; margin-top: 2rem; }
+.gallery__more[hidden] { display: none; }
 .gallery__item {
   position: relative; display: block; width: 100%; padding: 0; margin: 0;
   border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--surface);
@@ -597,7 +600,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @media (max-width: 1080px) {
   .grid--services { grid-template-columns: repeat(2, 1fr); }
   .infos { grid-template-columns: 1fr 1fr; }
-  .gallery { grid-template-columns: repeat(2, 1fr); }
+  .gallery { grid-template-columns: repeat(3, 1fr); }
   .infos__card--map { grid-column: 1 / -1; }
   .footer__inner { grid-template-columns: 1fr 1fr; }
   .nav ul { gap: 1.2rem; }
