@@ -148,14 +148,14 @@
 
     <section data-panneau="site" hidden>
       <h2>Photos du site</h2>
-      <p class="aide">Les grandes photos de l'accueil, de la présentation du salon et les portraits de l'équipe.</p>
+      <p class="aide">Les grandes photos de l'accueil et de la présentation du salon. Les portraits se changent dans l'onglet « Équipe ».</p>
       <div id="slots"></div>
       <input type="file" id="fichier-slot" accept="image/*" hidden>
     </section>
 
     <section data-panneau="equipe" hidden>
       <h2>Équipe</h2>
-      <p class="aide">Laissez un nom vide pour cacher la personne sur le site. Le portrait se change dans « Photos du site ».</p>
+      <p class="aide">Ajoutez la photo, le nom et le rôle de chaque personne. Laissez le nom vide pour la cacher sur le site.</p>
       <div id="membres"></div>
       <div class="pied"><button class="btn btn--or btn--plein" type="button" id="enr-equipe">Enregistrer l'équipe</button></div>
     </section>
@@ -455,7 +455,7 @@
 
   /* ─────────── Photos du site ─────────── */
   function afficherSlots() {
-    $('#slots').replaceChildren(...etat.site.map((s) => {
+    $('#slots').replaceChildren(...etat.site.filter((s) => !s.id.startsWith('team-')).map((s) => {
       const carte = document.createElement('div')
       carte.className = 'carte slot'
       if (s.chemin && !s.parDefaut) carte.append(vignette(s.chemin, 'Bientôt'))
@@ -482,7 +482,9 @@
       const { blob, w, h } = await compresser(f, 1400)
       const sha = await envoyerFichier(blob)
       voile('Publication…')
-      await api('enregistrer', { images: [{ slot: slotEnCours, sha, w, h }] })
+      const demande = { images: [{ slot: slotEnCours, sha, w, h }] }
+      if (slotEnCours.startsWith('team-')) demande.equipe = [...$('#membres').children].map((c) => c.lire())
+      await api('enregistrer', demande)
       await recharger()
       toast(PUBLIE)
     } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
@@ -507,6 +509,22 @@
       const carte = document.createElement('div')
       carte.className = 'carte'
       carte.append(Object.assign(document.createElement('div'), { className: 'carte-titre', textContent: 'Personne ' + (n + 1) }))
+      const slot = etat.site.find((x) => x.id === 'team-' + (n + 1))
+      if (slot) {
+        const ligne = document.createElement('div')
+        ligne.className = 'slot'
+        ligne.style.marginBottom = '14px'
+        ligne.append(slot.chemin && !slot.parDefaut ? vignette(slot.chemin, 'Bientôt') : Object.assign(document.createElement('div'), { className: 'ph' }))
+        const b = document.createElement('button')
+        b.type = 'button'
+        b.className = 'btn'
+        b.textContent = slot.parDefaut ? '📷 Ajouter sa photo' : '📷 Changer sa photo'
+        b.addEventListener('click', () => { slotEnCours = slot.id; $('#fichier-slot').click() })
+        const d = document.createElement('div')
+        d.append(b)
+        ligne.append(d)
+        carte.append(ligne)
+      }
       const nom = champ('Nom', m.nom === 'À compléter' ? '' : m.nom, { max: 60, placeholder: 'ex. Daniel' })
       const role = champ('Rôle', m.role, { max: 80, placeholder: 'ex. Coiffeur, barbier' })
       const rang = document.createElement('div')
