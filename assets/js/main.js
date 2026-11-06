@@ -416,6 +416,74 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
+     8 bis. EFFETS 3D (légers)
+     · Accueil : les photos pivotent en profondeur selon la souris.
+     · Cartes (prestations, galerie, équipe, avis) : s'inclinent en 3D
+       sous la souris, avec un reflet doré.
+     Uniquement avec une souris (pas sur téléphone) et si le visiteur
+     n'a pas demandé à réduire les animations. Aucune bibliothèque.
+     ════════════════════════════════════════════════════════════════════ */
+  const souris = window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  if (souris && !reduceMotion) {
+    // Accueil : profondeur
+    const hero = $('.hero')
+    const media = $('.hero__media')
+    if (hero && media) {
+      let raf = 0
+      hero.addEventListener('pointermove', (e) => {
+        cancelAnimationFrame(raf)
+        raf = requestAnimationFrame(() => {
+          const r = hero.getBoundingClientRect()
+          const x = ((e.clientX - r.left) / r.width) * 2 - 1
+          const y = ((e.clientY - r.top) / r.height) * 2 - 1
+          media.style.setProperty('--hx', x.toFixed(3))
+          media.style.setProperty('--hy', y.toFixed(3))
+        })
+      })
+      hero.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(raf)
+        media.style.setProperty('--hx', '0')
+        media.style.setProperty('--hy', '0')
+      })
+    }
+
+    // Cartes inclinables
+    const cartes = $$('.service:not(.service--cta), .gallery__item, .member__photo, .review')
+    cartes.forEach((el) => {
+      el.classList.add('tilt')
+      const reflet = document.createElement('span')
+      reflet.className = 'tilt__shine'
+      reflet.setAttribute('aria-hidden', 'true')
+      el.appendChild(reflet)
+      const angle = el.matches('.gallery__item, .member__photo') ? 9 : 6
+      let raf = 0
+
+      el.addEventListener('pointerenter', () => {
+        el.style.transition = 'transform .15s ease-out, border-color .35s'
+      })
+      el.addEventListener('pointermove', (e) => {
+        if (el.classList.contains('reveal') && !el.classList.contains('is-visible')) return
+        cancelAnimationFrame(raf)
+        raf = requestAnimationFrame(() => {
+          const r = el.getBoundingClientRect()
+          const x = (e.clientX - r.left) / r.width
+          const y = (e.clientY - r.top) / r.height
+          el.style.transform =
+            `perspective(900px) rotateX(${((0.5 - y) * angle).toFixed(2)}deg) ` +
+            `rotateY(${((x - 0.5) * angle).toFixed(2)}deg) translateY(-4px)`
+          el.style.setProperty('--mx', (x * 100).toFixed(1) + '%')
+          el.style.setProperty('--my', (y * 100).toFixed(1) + '%')
+        })
+      })
+      el.addEventListener('pointerleave', () => {
+        cancelAnimationFrame(raf)
+        el.style.transition = 'transform .6s cubic-bezier(.2,.7,.2,1), border-color .35s'
+        el.style.transform = ''
+      })
+    })
+  }
+
+  /* ════════════════════════════════════════════════════════════════════
      9. EN-TÊTE + LIGNE ACTIVE DANS LE MENU (au défilement)
      ════════════════════════════════════════════════════════════════════ */
   const navLinks = $$('.nav ul a')

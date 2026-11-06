@@ -587,8 +587,29 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hero__figure--main img   { animation: respirer 14s ease-in-out infinite alternate; }
 @keyframes respirer { from { transform: scale(1); } to { transform: scale(1.07); } }
 
-.js .reveal { opacity: 0; transform: translateY(26px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+/* Apparition en 3D : l'élément se redresse en arrivant (aussi sur téléphone) */
+.js .reveal {
+  opacity: 0; transform: perspective(1000px) translateY(30px) rotateX(12deg); transform-origin: 50% 0;
+  transition: opacity .8s var(--ease), transform .9s var(--ease);
+}
 .js .reveal.is-visible { opacity: 1; transform: none; }
+
+/* Effets 3D à la souris (voir main.js, « 8 bis ») */
+.hero__media {
+  transform: perspective(1200px) rotateY(calc(var(--hx, 0) * 7deg)) rotateX(calc(var(--hy, 0) * -6deg));
+  transition: transform .8s var(--ease);
+}
+.hero__figure--sub { translate: calc(var(--hx, 0) * -22px) calc(var(--hy, 0) * -16px); transition: translate .8s var(--ease); }
+.hero__badges      { translate: calc(var(--hx, 0) * 18px) calc(var(--hy, 0) * 12px); transition: translate .8s var(--ease); }
+
+.tilt { position: relative; will-change: transform; }
+.tilt__shine {
+  position: absolute; inset: 0; z-index: 3; pointer-events: none; border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(231, 199, 120, .18), transparent 45%);
+  opacity: 0; transition: opacity .35s;
+}
+.tilt:hover .tilt__shine { opacity: 1; }
+.tilt:hover { box-shadow: 0 22px 45px -18px rgba(0, 0, 0, .7); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
