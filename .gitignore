@@ -7,8 +7,8 @@
 # Dépendances Node (au cas où)
 node_modules/
 
-# ⚠️ NE PAS ignorer « public/ » : c'est le dossier publié par Netlify.
-#    (voir netlify.toml et README.md → « Mise en ligne »)
+# Dossier publié : reconstruit par Netlify à chaque envoi (voir netlify.toml).
+public/
 
 # Copies de sécurité manuelles (ancien design, anciennes versions)
 *.avant-*

@@ -31,6 +31,11 @@ import { join, dirname, extname, basename, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { execFile, spawn } from 'node:child_process'
 import { pipeline } from 'node:stream/promises'
+import {
+  CATEGORIES, SITE_SLOTS, nettoyerNom as nettoyerNomBase, majImage, lireEquipe as lireEquipeHtml,
+  ecrireEquipe as ecrireEquipeHtml, lireAvis as lireAvisHtml, lireLienGoogle as lireLienGoogleHtml,
+  ecrireAvis as ecrireAvisHtml, avisPropres, equipePropre,
+} from './contenu.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const GALERIE = join(ROOT, 'tools', 'galerie.mjs')
@@ -43,28 +48,7 @@ const PAGE = join(ROOT, 'tools', 'admin.html')
 const IMG = join(ROOT, 'assets', 'img')
 const SUR_MAC = process.platform === 'darwin'
 
-/* ⚠️ Tenir cette liste synchronisée avec tools/galerie.mjs (CATEGORIES). */
-const CATEGORIES = [
-  { dossier: 'coupe-dame',     cat: 'dame',     label: 'Coupe dame' },
-  { dossier: 'coiffure-homme', cat: 'homme',    label: 'Coiffure homme' },
-  { dossier: 'locks-tresses',  cat: 'locks',    label: 'Locks & tresses' },
-  { dossier: 'soins-visage',   cat: 'visage',   label: 'Soins du visage' },
-  { dossier: 'tatouage',       cat: 'tatouage', label: 'Tatouage' },
-  { dossier: 'faux-ongles',    cat: 'ongles',   label: 'Faux ongles' },
-]
 const DOSSIERS = new Set(CATEGORIES.map((c) => c.dossier))
-
-/* Photos « fixes » du site : un emplacement = un fichier assets/img/<id>.<ext>.
-   w / h = dimensions du visuel de remplacement, pour pouvoir y revenir. */
-const SITE_SLOTS = [
-  { id: 'hero-portrait', label: "Accueil — photo principale", w: 900, h: 1200 },
-  { id: 'hero-square',   label: "Accueil — photo secondaire", w: 900, h: 900 },
-  { id: 'about',         label: "Le salon — photo d'illustration", w: 1000, h: 750 },
-  { id: 'team-1',        label: 'Équipe — portrait 1', w: 600, h: 700 },
-  { id: 'team-2',        label: 'Équipe — portrait 2', w: 600, h: 700 },
-  { id: 'team-3',        label: 'Équipe — portrait 3', w: 600, h: 700 },
-  { id: 'team-4',        label: 'Équipe — portrait 4', w: 600, h: 700 },
-]
 
 const IMAGES = ['.jpg', '.jpeg', '.png', '.webp', '.avif', '.svg']
 const VIDEOS = ['.mp4', '.webm', '.mov', '.m4v']
@@ -102,18 +86,7 @@ function lister(dossier) {
     .sort()
 }
 
-/* Transforme un nom de fichier en nom « propre » : minuscules, sans accents,
-   mots séparés par des tirets — comme attendu par tools/galerie.mjs. */
-function nettoyerNom(nom) {
-  const e = ext(nom)
-  const base = basename(nom, extname(nom))
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60)
-  return (base || 'fichier') + e
-}
+const nettoyerNom = nettoyerNomBase
 
 function nomUnique(dossier, nom) {
   if (!existsSync(join(dossier, nom))) return nom
@@ -136,12 +109,6 @@ function execFileP(commande, args, options = {}) {
 
 /* ───────────── Photos fixes du site (accueil, le salon, équipe) ───────────── */
 
-const decodeEnt = (s) => String(s)
-  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
-  .replace(/&#39;/g, "'").replace(/&amp;/g, '&')
-const encodeEnt = (s) => String(s)
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-
 /* Fichier actuellement utilisé pour un emplacement (photo réelle ou SVG). */
 function fichierSlot(id) {
   if (!existsSync(IMG)) return null
@@ -158,133 +125,23 @@ async function dimensionsSips(chemin) {
   return w && h ? { w: Number(w[1]), h: Number(h[1]) } : null
 }
 
-/* Réécrit dans index.html le <img> de l'emplacement : source + dimensions. */
-function majIndexImage(id, cheminRel, dims) {
-  const html = readFileSync(INDEX, 'utf8')
-  let touche = 0
-  const nouveau = html.replace(/<img\b[^>]*>/g, (tag) => {
-    if (!tag.includes(`assets/img/${id}.`)) return tag
-    let t = tag.replace(/(\bsrc=")assets\/img\/[^"]+(")/, `$1${cheminRel}$2`)
-    if (dims?.w) t = t.replace(/(\bwidth=")\d+(")/, `$1${Math.round(dims.w)}$2`)
-    if (dims?.h) t = t.replace(/(\bheight=")\d+(")/, `$1${Math.round(dims.h)}$2`)
-    touche += 1
-    return t
-  })
-  if (!touche) throw new Error(`Image « ${id} » introuvable dans index.html`)
-  copyFileSync(INDEX, INDEX + '.bak')
-  writeFileSync(INDEX, nouveau, 'utf8')
-  return touche
-}
-
-function lireEquipe() {
-  const html = readFileSync(INDEX, 'utf8')
-  const membres = []
-  const re = /<article class="member[^"]*">([\s\S]*?)<\/article>/g
-  let m
-  while ((m = re.exec(html))) {
-    const nom = /<h4>([\s\S]*?)<\/h4>/.exec(m[1])
-    const role = /<p class="member__role">([\s\S]*?)<\/p>/.exec(m[1])
-    membres.push({
-      nom: nom ? decodeEnt(nom[1].trim()) : '',
-      role: role ? decodeEnt(role[1].trim()) : '',
-    })
-  }
-  return membres
-}
-
-function ecrireEquipe(membres) {
-  const html = readFileSync(INDEX, 'utf8')
-  let i = 0
-  const re = /<article class="member[^"]*">[\s\S]*?<\/article>/g
-  const nouveau = html.replace(re, (bloc) => {
-    const mm = membres[i]
-    i += 1
-    if (!mm) return bloc
-    const nomBrut = String(mm.nom ?? '').trim()
-    const roleBrut = String(mm.role ?? '').trim()
-    const alt = nomBrut && nomBrut !== 'À compléter'
-      ? `Portrait de ${nomBrut}, ${roleBrut}`
-      : "Portrait d'un membre de l'équipe"
-    return bloc
-      .replace(/(<img\b[^>]*\balt=")[^"]*(")/, `$1${encodeEnt(alt)}$2`)
-      .replace(/(<h4>)[\s\S]*?(<\/h4>)/, `$1${encodeEnt(nomBrut)}$2`)
-      .replace(/(<p class="member__role">)[\s\S]*?(<\/p>)/, `$1${encodeEnt(roleBrut)}$2`)
-  })
-  if (!i) throw new Error('Section équipe introuvable dans index.html')
-  copyFileSync(INDEX, INDEX + '.bak')
-  writeFileSync(INDEX, nouveau, 'utf8')
-  return i
-}
-
-/* ───────────── Avis clients ───────────── */
-
-const ETOILE = '<svg aria-hidden="true"><use href="#i-star"/></svg>'
-
-function lireAvis() {
-  const html = readFileSync(INDEX, 'utf8')
-  const bloc = /<div class="grid grid--reviews">([\s\S]*?)<\/div>/.exec(html)
-  if (!bloc) return []
-  const figures = bloc[1].match(/<figure class="review[^"]*">[\s\S]*?<\/figure>/g) ?? []
-  return figures.map((f) => {
-    const note = (f.match(/<use href="#i-star"\/>/g) ?? []).length
-    const texte = (/<blockquote>([\s\S]*?)<\/blockquote>/.exec(f)?.[1] ?? '').trim()
-    const nom = (/<figcaption><strong>([\s\S]*?)<\/strong>/.exec(f)?.[1] ?? '').trim()
-    const prestation = (/<figcaption><strong>[\s\S]*?<\/strong>\s*<span>([\s\S]*?)<\/span>/.exec(f)?.[1] ?? '').trim()
-    return {
-      note: Math.min(5, Math.max(1, note || 5)),
-      texte: decodeEnt(texte.replace(/^«\s*/, '').replace(/\s*»$/, '').trim()),
-      nom: decodeEnt(nom),
-      prestation: decodeEnt(prestation),
-    }
-  })
-}
-
-function lireLienGoogle() {
-  const html = readFileSync(INDEX, 'utf8')
-  const m = /<a[^>]*data-avis-google[^>]*href="([^"]*)"/.exec(html)
-  return m ? decodeEnt(m[1]) : ''
-}
-
-/* Réécrit la liste des avis et, si fourni, le lien vers les avis Google. */
-function ecrireAvis(avis, google) {
-  let html = readFileSync(INDEX, 'utf8')
-
-  const blocs = avis.map((a) => {
-    const note = Math.min(5, Math.max(1, Math.round(Number(a.note) || 5)))
-    const texte = encodeEnt(String(a.texte ?? '').trim())
-    const nom = encodeEnt(String(a.nom ?? '').trim())
-    const prestation = encodeEnt(String(a.prestation ?? '').trim())
-    return `      <figure class="review reveal">
-        <span class="review__stars" aria-label="Note : ${note} étoile${note > 1 ? 's' : ''} sur 5">
-          ${ETOILE.repeat(note)}
-        </span>
-        <blockquote>« ${texte} »</blockquote>
-        <figcaption><strong>${nom}</strong><span>${prestation}</span></figcaption>
-      </figure>`
-  })
-  const contenu = blocs.length ? '\n\n' + blocs.join('\n\n') + '\n\n    ' : '\n    '
-
-  const re = /(<div class="grid grid--reviews">)([\s\S]*?)(<\/div>)/
-  if (!re.test(html)) throw new Error('Section avis introuvable dans index.html')
-  html = html.replace(re, `$1${contenu}$3`)
-
-  // Bouton facultatif « Voir nos avis Google ».
-  html = html.replace(/[ \t]*<a[^>]*data-avis-google[^>]*>[\s\S]*?<\/a>\n?/g, '')
-  if (google) {
-    const lien = `      <a class="btn btn--ghost" data-avis-google
-         href="${encodeEnt(google)}"
-         target="_blank" rel="noopener">
-        Voir nos avis Google
-        <svg class="btn__icon" aria-hidden="true"><use href="#i-arrow"/></svg>
-      </a>
-`
-    if (!/<p class="reviews__more reveal">\n/.test(html)) throw new Error('Bloc « reviews__more » introuvable')
-    html = html.replace(/(<p class="reviews__more reveal">\n)/, `$1${lien}`)
-  }
-
+/* Lecture / écriture d'index.html via les fonctions partagées (tools/contenu.mjs). */
+const lireIndex = () => readFileSync(INDEX, 'utf8')
+function ecrireIndex(html) {
   copyFileSync(INDEX, INDEX + '.bak')
   writeFileSync(INDEX, html, 'utf8')
-  return blocs.length
+}
+const majIndexImage = (id, cheminRel, dims) => ecrireIndex(majImage(lireIndex(), id, cheminRel, dims))
+const lireEquipe = () => lireEquipeHtml(lireIndex())
+const lireAvis = () => lireAvisHtml(lireIndex())
+const lireLienGoogle = () => lireLienGoogleHtml(lireIndex())
+function ecrireEquipe(membres) {
+  ecrireIndex(ecrireEquipeHtml(lireIndex(), membres))
+  return membres.length
+}
+function ecrireAvis(avis, google) {
+  ecrireIndex(ecrireAvisHtml(lireIndex(), avis, google))
+  return avis.length
 }
 
 /* Optimise une image avec « sips » (fourni par macOS, aucune installation).
@@ -570,17 +427,13 @@ async function apiSiteRetirer(req, res) {
   return repondre(res, 200, { ok: true })
 }
 
-/* Met à jour les avis clients (et le lien Google facultatif). */async function apiAvis(req, res) {
+/* Met à jour les avis clients (et le lien Google facultatif). */
+async function apiAvis(req, res) {
   let corps
   try { corps = await lireJSON(req) } catch (e) { return repondre(res, 400, { ok: false, erreur: e.message }) }
   if (!Array.isArray(corps.avis)) return repondre(res, 400, { ok: false, erreur: 'Données manquantes' })
 
-  const propres = corps.avis.slice(0, 12).map((a) => ({
-    note: Number(a?.note) || 5,
-    texte: String(a?.texte ?? '').trim().slice(0, 400),
-    nom: String(a?.nom ?? '').trim().slice(0, 40),
-    prestation: String(a?.prestation ?? '').trim().slice(0, 60),
-  })).filter((a) => a.texte.length > 0)
+  const propres = avisPropres(corps.avis)
 
   const google = String(corps.google ?? '').trim().slice(0, 300)
   if (google && !/^https?:\/\//i.test(google)) {
@@ -600,10 +453,7 @@ async function apiEquipe(req, res) {
   let corps
   try { corps = await lireJSON(req) } catch (e) { return repondre(res, 400, { ok: false, erreur: e.message }) }
   if (!Array.isArray(corps.membres)) return repondre(res, 400, { ok: false, erreur: 'Données manquantes' })
-  const propres = corps.membres.slice(0, 20).map((m) => ({
-    nom: String(m?.nom ?? '').slice(0, 60),
-    role: String(m?.role ?? '').slice(0, 80),
-  }))
+  const propres = equipePropre(corps.membres)
   try {
     const n = ecrireEquipe(propres)
     return repondre(res, 200, { ok: true, membres: n })
@@ -638,7 +488,8 @@ async function apiPublier(res) {
   return repondre(res, 200, { ok: true, sortie: (stdout + '\n' + r.stdout).trim(), domaine })
 }
 
-async function apiOuvrir(req, res) {  const corps = await lireJSON(req).catch(() => ({}))
+async function apiOuvrir(req, res) {
+  const corps = await lireJSON(req).catch(() => ({}))
   let dir
   try { dir = dossierDe(corps.dossier, corps.genre) } catch (e) { return repondre(res, 400, { ok: false, erreur: e.message }) }
   if (!SUR_MAC) return repondre(res, 200, { ok: false, erreur: 'Ouverture du Finder disponible sur macOS uniquement.' })

@@ -1,21 +1,28 @@
 # Configuration Netlify — ZAKPA COIFFURE
 # ============================================================================
-# Netlify publie le dossier « public/ », généré par :
+# À chaque envoi sur GitHub (depuis le Mac OU depuis le back office en ligne),
+# Netlify reconstruit le site lui-même :
 #
-#     node tools/publier.mjs          (ou « Publier le site.command »)
+#     node tools/galerie.mjs     galerie générée depuis assets/photos et assets/videos
+#     node tools/publier.mjs     copie du site dans « public/ »
 #
-# Ce dossier ne contient que le site (index.html, assets/, robots.txt,
-# sitemap.xml) : ni les outils internes, ni le back office.
+# Le dossier « public/ » n'est donc plus envoyé sur GitHub (voir .gitignore).
 #
-# ⚠️ Après une modification du site, relancez `node tools/publier.mjs`
-#    (ou double-cliquez sur « Publier le site.command ») avant d'envoyer sur
-#    GitHub : c'est ce qui met public/ à jour.
+# Back office en ligne : https://<site>/gestion/
+#   → API : netlify/functions/gestion.mjs
+#   → variables à définir dans Netlify : GESTION_MOT_DE_PASSE, GITHUB_TOKEN
 # ============================================================================
 
 [build]
   publish = "public"
-  # Aucune compilation : le site est statique, il suffit de le copier.
-  command = ""
+  command = "node tools/galerie.mjs && node tools/publier.mjs"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+[functions]
+  node_bundler = "esbuild"
 
 # ── Sécurité : en-têtes envoyés avec chaque page ─────────────────────────────
 [[headers]]
@@ -26,3 +33,11 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
 
+
+# ── Back office en ligne : jamais indexé, jamais mis en cache, jamais encadré ──
+[[headers]]
+  for = "/gestion/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"

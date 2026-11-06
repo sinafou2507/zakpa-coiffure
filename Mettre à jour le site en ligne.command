@@ -46,6 +46,16 @@ echo "  ║       ZAKPA COIFFURE — Mise à jour du site en ligne        ║"
 echo "  ╚════════════════════════════════════════════════════════════╝"
 echo ""
 
+# --- Récupérer d'abord les changements faits depuis le back office en ligne ---
+if command -v git >/dev/null 2>&1 && [ -d .git ]; then
+  echo "  ⏳  Récupération des derniers changements en ligne…"
+  if ! git pull -q --rebase --autostash origin main 2>/dev/null; then
+    git rebase --abort 2>/dev/null
+    echo "  ⚠️   Impossible de récupérer les changements en ligne (pas d'Internet ?)."
+    echo "      Vous pouvez continuer, mais prévenez votre webmaster si cela se répète."
+  fi
+fi
+
 NODE=$(trouver_node)
 if [ -z "$NODE" ]; then
   echo "  ❌  Node.js n'a pas été trouvé sur cet ordinateur."

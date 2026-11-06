@@ -50,6 +50,8 @@ for (const f of FICHIERS) {
   copyFileSync(join(ROOT, f), join(OUT, f))
 }
 cpSync(join(ROOT, 'assets'), join(OUT, 'assets'), { recursive: true })
+// Page du back office en ligne (le client s'y connecte : https://<site>/gestion/)
+if (existsSync(join(ROOT, 'gestion'))) cpSync(join(ROOT, 'gestion'), join(OUT, 'gestion'), { recursive: true })
 
 /* Nettoie les fichiers inutiles (macOS, notes de dossiers). */
 function nettoyer(dir) {

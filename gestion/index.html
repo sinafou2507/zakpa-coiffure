@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0c0a09">
+<title>Gestion du site — ZAKPA COIFFURE</title>
+<link rel="icon" href="../assets/img/logo-sm.webp">
+<style>
+  :root {
+    --bg: #0c0a09; --bg-2: #15120f; --surface: #1c1814; --line: rgba(246,241,233,.1); --line-2: rgba(246,241,233,.18);
+    --text: #f6f1e9; --muted: rgba(246,241,233,.62); --gold: #cfa84f; --gold-lt: #e6c77d;
+    --danger: #e0685a; --ok: #5cc98a; --r: 14px;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-size: 16px; line-height: 1.45; -webkit-text-size-adjust: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px; }
+
+  /* Connexion */
+  .login { min-height: 100svh; display: grid; place-items: center; padding: 24px 16px; }
+  .login form { width: 100%; max-width: 360px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 20px; padding: 28px 22px; text-align: center; }
+  .login img { width: 72px; }
+  .login h1 { font-size: 1.25rem; margin: 10px 0 4px; letter-spacing: .04em; }
+  .login p { color: var(--muted); margin: 0 0 20px; font-size: .92rem; }
+
+  /* Champs & boutons */
+  label.champ { display: block; text-align: left; font-size: .82rem; color: var(--muted); margin-bottom: 12px; }
+  input[type=text], input[type=password], input[type=url], select, textarea {
+    width: 100%; margin-top: 5px; padding: 12px 13px; border-radius: 10px; border: 1px solid var(--line-2);
+    background: var(--bg); font-size: 16px; outline: none;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { min-height: 90px; resize: vertical; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 20px;
+    border-radius: 999px; border: 1px solid var(--line-2); background: transparent; font-weight: 600; text-decoration: none; }
+  .btn--or { background: linear-gradient(135deg, #e9cf8a, #cfa84f 55%, #a8832f); color: #1a140a; border: 0; }
+  .btn--plein { width: 100%; }
+  .btn--danger { color: var(--danger); border-color: rgba(224,104,90,.4); }
+  .btn:disabled { opacity: .5; cursor: wait; }
+  .erreur { color: var(--danger); font-size: .9rem; min-height: 1.3em; margin: 10px 0 0; }
+
+  /* En-tête */
+  header { position: sticky; top: 0; z-index: 10; background: rgba(12,10,9,.94); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .barre { display: flex; align-items: center; gap: 12px; height: 60px; }
+  .barre img { width: 40px; }
+  .barre strong { flex: 1; font-size: .98rem; letter-spacing: .03em; }
+  .barre a, .barre button { font-size: .85rem; color: var(--muted); background: none; border: 0; text-decoration: none; padding: 8px 4px; }
+  .onglets { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+  .onglets::-webkit-scrollbar { display: none; }
+  .onglets button { flex: none; padding: 9px 15px; border-radius: 999px; border: 1px solid var(--line-2); background: none; font-size: .9rem; white-space: nowrap; }
+  .onglets button[aria-selected=true] { background: var(--gold); color: #1a140a; border-color: var(--gold); font-weight: 600; }
+
+  main { padding: 20px 0 120px; }
+  h2 { font-size: 1.15rem; margin: 0 0 4px; }
+  .aide { color: var(--muted); font-size: .9rem; margin: 0 0 18px; }
+
+  /* Galerie */
+  .cats { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .cats button { padding: 8px 13px; border-radius: 999px; border: 1px solid var(--line-2); background: none; font-size: .86rem; }
+  .cats button[aria-pressed=true] { border-color: var(--gold); color: var(--gold-lt); background: rgba(207,168,79,.1); }
+  .cats small { color: var(--muted); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+  .actions .btn { flex: 1 1 160px; }
+  .grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+  .vignette { position: relative; aspect-ratio: 4 / 5; border-radius: 12px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+  .vignette img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vignette .attente { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 10px; font-size: .78rem; color: var(--muted); }
+  .vignette .type { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,.65); font-size: .72rem; padding: 3px 8px; border-radius: 99px; }
+  .vignette .suppr { position: absolute; right: 6px; top: 6px; width: 38px; height: 38px; border-radius: 50%; border: 0;
+    background: rgba(0,0,0,.7); color: #fff; font-size: 1.15rem; line-height: 1; }
+  .vide { color: var(--muted); padding: 30px 0; text-align: center; border: 1px dashed var(--line-2); border-radius: var(--r); }
+
+  /* Cartes */
+  .carte { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
+  .slot { display: flex; gap: 14px; align-items: center; }
+  .slot img, .slot .ph { width: 76px; height: 92px; object-fit: cover; border-radius: 10px; background: var(--surface); flex: none; }
+  .slot div { flex: 1; min-width: 0; }
+  .slot p { margin: 0 0 8px; font-weight: 600; font-size: .95rem; }
+  .slot .btn { min-height: 40px; font-size: .88rem; padding: 0 14px; }
+  .rang { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .carte-titre { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 600; }
+  .carte-titre button { background: none; border: 0; color: var(--danger); font-size: .85rem; padding: 6px; }
+  .pied { position: sticky; bottom: 0; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
+
+  /* Messages */
+  .toast { position: fixed; left: 16px; right: 16px; bottom: calc(18px + env(safe-area-inset-bottom)); z-index: 50; max-width: 480px; margin: 0 auto;
+    background: #1f2a22; border: 1px solid rgba(92,201,138,.4); color: var(--text); padding: 14px 16px; border-radius: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.5); font-size: .93rem; }
+  .toast.ko { background: #2c1b19; border-color: rgba(224,104,90,.5); }
+  .voile { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.7); display: grid; place-items: center; padding: 16px; }
+  .voile div { background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 16px; padding: 22px; max-width: 340px; width: 100%; text-align: center; }
+  .spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line-2); border-top-color: var(--gold); animation: t 1s linear infinite; margin: 0 auto 12px; }
+  @keyframes t { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ─────────── Connexion ─────────── -->
+<section class="login" id="ecran-connexion">
+  <form id="form-connexion">
+    <img src="../assets/img/logo-sm.webp" alt="">
+    <h1>ZAKPA COIFFURE</h1>
+    <p>Gestion du site</p>
+    <label class="champ">Mot de passe
+      <input type="password" id="mdp" autocomplete="current-password" required>
+    </label>
+    <button class="btn btn--or btn--plein" type="submit">Se connecter</button>
+    <p class="erreur" id="erreur-connexion" role="alert"></p>
+  </form>
+</section>
+
+<!-- ─────────── Application ─────────── -->
+<div id="appli" hidden>
+  <header>
+    <div class="wrap">
+      <div class="barre">
+        <img src="../assets/img/logo-sm.webp" alt="">
+        <strong>Gestion du site</strong>
+        <a href="../" target="_blank" rel="noopener">Voir le site ↗</a>
+        <button type="button" id="deconnexion">Quitter</button>
+      </div>
+      <nav class="onglets" role="tablist">
+        <button role="tab" data-onglet="galerie" aria-selected="true">📷 Réalisations</button>
+        <button role="tab" data-onglet="site" aria-selected="false">🖼️ Photos du site</button>
+        <button role="tab" data-onglet="equipe" aria-selected="false">👥 Équipe</button>
+        <button role="tab" data-onglet="avis" aria-selected="false">⭐ Avis</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section data-panneau="galerie">
+      <h2>Réalisations</h2>
+      <p class="aide">Choisissez une catégorie, puis ajoutez vos photos ou vidéos. Elles apparaissent sur le site 1 à 2 minutes plus tard.</p>
+      <div class="cats" id="cats"></div>
+      <div class="actions">
+        <button class="btn btn--or" type="button" id="ajout-photos">＋ Photos</button>
+        <button class="btn" type="button" id="ajout-video">＋ Vidéo</button>
+      </div>
+      <input type="file" id="fichier-photos" accept="image/*" multiple hidden>
+      <input type="file" id="fichier-video" accept="video/mp4,video/quicktime,video/webm,video/*" hidden>
+      <div class="grille" id="grille"></div>
+    </section>
+
+    <section data-panneau="site" hidden>
+      <h2>Photos du site</h2>
+      <p class="aide">Les grandes photos de l'accueil, de la présentation du salon et les portraits de l'équipe.</p>
+      <div id="slots"></div>
+      <input type="file" id="fichier-slot" accept="image/*" hidden>
+    </section>
+
+    <section data-panneau="equipe" hidden>
+      <h2>Équipe</h2>
+      <p class="aide">Laissez un nom vide pour cacher la personne sur le site. Le portrait se change dans « Photos du site ».</p>
+      <div id="membres"></div>
+      <div class="pied"><button class="btn btn--or btn--plein" type="button" id="enr-equipe">Enregistrer l'équipe</button></div>
+    </section>
+
+    <section data-panneau="avis" hidden>
+      <h2>Avis clients</h2>
+      <p class="aide">Recopiez ici les vrais avis de vos clients (WhatsApp, Google, Instagram…).</p>
+      <div id="liste-avis"></div>
+      <button class="btn btn--plein" type="button" id="ajout-avis" style="margin-bottom:16px">＋ Ajouter un avis</button>
+      <label class="champ">Lien vers vos avis Google (facultatif)
+        <input type="url" id="lien-google" placeholder="https://g.page/…" inputmode="url">
+      </label>
+      <div class="pied"><button class="btn btn--or btn--plein" type="button" id="enr-avis">Enregistrer les avis</button></div>
+    </section>
+  </main>
+</div>
+
+<div class="voile" id="voile" hidden><div><div class="spin"></div><span id="voile-texte">Envoi…</span></div></div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  'use strict'
+  const $ = (s, el = document) => el.querySelector(s)
+  const API = 'api/'
+  let jeton = null
+  let etat = null
+  let categorie = null
+  let slotEnCours = null
+
+  const stock = {
+    lire() { try { return sessionStorage.getItem('zakpa-jeton') } catch { return null } },
+    ecrire(v) { try { v ? sessionStorage.setItem('zakpa-jeton', v) : sessionStorage.removeItem('zakpa-jeton') } catch {} },
+  }
+
+  /* ─────────── Messages ─────────── */
+  let minuteur
+  function toast(texte, ko = false) {
+    const t = $('#toast')
+    t.textContent = texte
+    t.classList.toggle('ko', ko)
+    t.hidden = false
+    clearTimeout(minuteur)
+    minuteur = setTimeout(() => { t.hidden = true }, ko ? 7000 : 5000)
+  }
+  function voile(texte) {
+    $('#voile').hidden = !texte
+    if (texte) $('#voile-texte').textContent = texte
+  }
+  const PUBLIE = '✓ Enregistré. Le site sera à jour dans 1 à 2 minutes.'
+
+  /* ─────────── API ─────────── */
+  async function api(action, corps) {
+    const r = await fetch(API + action, {
+      method: corps ? 'POST' : 'GET',
+      headers: { 'Content-Type': 'application/json', ...(jeton ? { Authorization: 'Bearer ' + jeton } : {}) },
+      body: corps ? JSON.stringify(corps) : undefined,
+    })
+    let d = {}
+    try { d = await r.json() } catch {}
+    if (r.status === 401 && action !== 'connexion') { deconnecter(); throw new Error(d.erreur || 'Session expirée') }
+    if (!r.ok || d.ok === false) throw new Error(d.erreur || 'Erreur ' + r.status)
+    return d
+  }
+
+  /* ─────────── Connexion ─────────── */
+  $('#form-connexion').addEventListener('submit', async (e) => {
+    e.preventDefault()
+    const bouton = e.target.querySelector('button')
+    bouton.disabled = true
+    $('#erreur-connexion').textContent = ''
+    try {
+      const d = await api('connexion', { motDePasse: $('#mdp').value })
+      jeton = d.jeton
+      stock.ecrire(jeton)
+      $('#mdp').value = ''
+      await demarrer()
+    } catch (err) {
+      $('#erreur-connexion').textContent = err.message
+    } finally {
+      bouton.disabled = false
+    }
+  })
+
+  function deconnecter() {
+    jeton = null
+    stock.ecrire(null)
+    $('#appli').hidden = true
+    $('#ecran-connexion').hidden = false
+  }
+  $('#deconnexion').addEventListener('click', deconnecter)
+
+  async function demarrer() {
+    voile('Chargement…')
+    try {
+      await recharger()
+      $('#ecran-connexion').hidden = true
+      $('#appli').hidden = false
+    } catch (err) {
+      $('#erreur-connexion').textContent = err.message
+    } finally {
+      voile(null)
+    }
+  }
+
+  async function recharger() {
+    etat = await api('etat')
+    if (!categorie) categorie = etat.categories[0].dossier
+    afficherGalerie()
+    afficherSlots()
+    afficherEquipe()
+    afficherAvis()
+  }
+
+  /* ─────────── Onglets ─────────── */
+  document.querySelectorAll('[data-onglet]').forEach((b) => b.addEventListener('click', () => {
+    document.querySelectorAll('[data-onglet]').forEach((x) => x.setAttribute('aria-selected', String(x === b)))
+    document.querySelectorAll('[data-panneau]').forEach((p) => { p.hidden = p.dataset.panneau !== b.dataset.onglet })
+    window.scrollTo(0, 0)
+  }))
+
+  /* ─────────── Images : vignette, compression ─────────── */
+  function vignette(chemin, texteAttente = 'En ligne dans 1 à 2 min') {
+    const img = document.createElement('img')
+    img.loading = 'lazy'
+    img.alt = ''
+    img.src = '../' + chemin
+    img.addEventListener('error', () => {
+      const d = document.createElement('div')
+      d.className = 'attente'
+      d.textContent = '⏳ ' + texteAttente
+      img.replaceWith(d)
+    })
+    return img
+  }
+
+  async function chargerImage(fichier) {
+    try {
+      return await createImageBitmap(fichier, { imageOrientation: 'from-image' })
+    } catch {
+      return await new Promise((ok, ko) => {
+        const img = new Image()
+        img.onload = () => ok(img)
+        img.onerror = () => ko(new Error('Format de photo non lu par ce navigateur : ' + fichier.name))
+        img.src = URL.createObjectURL(fichier)
+      })
+    }
+  }
+
+  /* Réduit la photo (1600 px max) et la convertit en JPEG : rapide à charger sur le site. */
+  async function compresser(fichier, max = 1600) {
+    const img = await chargerImage(fichier)
+    const w0 = img.width, h0 = img.height
+    const k = Math.min(1, max / Math.max(w0, h0))
+    const w = Math.round(w0 * k), h = Math.round(h0 * k)
+    const c = document.createElement('canvas')
+    c.width = w; c.height = h
+    c.getContext('2d').drawImage(img, 0, 0, w, h)
+    const blob = await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.85))
+    return { blob, w, h }
+  }
+
+  /* Image d'aperçu d'une vidéo (première seconde). */
+  function apercuVideo(fichier) {
+    return new Promise((ok) => {
+      const v = document.createElement('video')
+      v.muted = true; v.playsInline = true; v.preload = 'auto'
+      v.src = URL.createObjectURL(fichier)
+      const fin = (blob) => { URL.revokeObjectURL(v.src); ok(blob) }
+      setTimeout(() => fin(null), 15000)
+      v.addEventListener('loadeddata', () => { v.currentTime = Math.min(1, (v.duration || 2) / 3) }, { once: true })
+      v.addEventListener('seeked', () => {
+        const k = Math.min(1, 1200 / Math.max(v.videoWidth, v.videoHeight))
+        const c = document.createElement('canvas')
+        c.width = Math.round(v.videoWidth * k); c.height = Math.round(v.videoHeight * k)
+        if (!c.width) return fin(null)
+        c.getContext('2d').drawImage(v, 0, 0, c.width, c.height)
+        c.toBlob(fin, 'image/jpeg', 0.82)
+      }, { once: true })
+      v.addEventListener('error', () => fin(null), { once: true })
+    })
+  }
+
+  const enBase64 = (blob) => new Promise((ok, ko) => {
+    const r = new FileReader()
+    r.onload = () => ok(String(r.result).split(',')[1])
+    r.onerror = () => ko(new Error('Lecture du fichier impossible'))
+    r.readAsDataURL(blob)
+  })
+  async function envoyerFichier(blob) {
+    return (await api('fichier', { contenu: await enBase64(blob) })).sha
+  }
+  const nomSans = (n) => n.replace(/\.[^.]+$/, '')
+
+  /* ─────────── Galerie ─────────── */
+  function afficherGalerie() {
+    const cats = $('#cats')
+    cats.replaceChildren(...etat.categories.map((c) => {
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.setAttribute('aria-pressed', String(c.dossier === categorie))
+      b.append(c.label + ' ')
+      const n = document.createElement('small')
+      n.textContent = '(' + (c.photos.length + c.videos.length) + ')'
+      b.append(n)
+      b.addEventListener('click', () => { categorie = c.dossier; afficherGalerie() })
+      return b
+    }))
+
+    const c = etat.categories.find((x) => x.dossier === categorie)
+    const elements = [
+      ...c.videos.map((v) => ({ ...v, video: true })),
+      ...c.photos,
+    ]
+    const grille = $('#grille')
+    if (!elements.length) {
+      const d = document.createElement('p')
+      d.className = 'vide'
+      d.textContent = 'Aucune photo dans « ' + c.label + ' » pour le moment.'
+      grille.replaceChildren(d)
+      grille.style.display = 'block'
+      return
+    }
+    grille.style.display = ''
+    grille.replaceChildren(...elements.map((el) => {
+      const d = document.createElement('div')
+      d.className = 'vignette'
+      if (el.video) {
+        d.append(el.apercu ? vignette(el.apercu) : Object.assign(document.createElement('div'), { className: 'attente', textContent: '🎬 ' + el.nom }))
+        d.append(Object.assign(document.createElement('span'), { className: 'type', textContent: '▶ Vidéo' }))
+      } else {
+        d.append(vignette(el.chemin))
+      }
+      const x = document.createElement('button')
+      x.type = 'button'
+      x.className = 'suppr'
+      x.setAttribute('aria-label', 'Supprimer')
+      x.textContent = '✕'
+      x.addEventListener('click', () => supprimer(el))
+      d.append(x)
+      return d
+    }))
+  }
+
+  async function supprimer(el) {
+    if (!confirm(el.video ? 'Supprimer cette vidéo du site ?' : 'Supprimer cette photo du site ?')) return
+    voile('Suppression…')
+    try {
+      await api('enregistrer', { suppressions: [el.chemin] })
+      await recharger()
+      toast(PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  }
+
+  $('#ajout-photos').addEventListener('click', () => $('#fichier-photos').click())
+  $('#ajout-video').addEventListener('click', () => $('#fichier-video').click())
+
+  $('#fichier-photos').addEventListener('change', async (e) => {
+    const fichiers = [...e.target.files].slice(0, 20)
+    e.target.value = ''
+    if (!fichiers.length) return
+    const ajouts = []
+    try {
+      for (const [i, f] of fichiers.entries()) {
+        voile(`Envoi de la photo ${i + 1} sur ${fichiers.length}…`)
+        const { blob } = await compresser(f)
+        ajouts.push({ genre: 'photos', dossier: categorie, nom: nomSans(f.name) + '.jpg', sha: await envoyerFichier(blob) })
+      }
+      voile('Publication…')
+      await api('enregistrer', { ajouts })
+      await recharger()
+      toast(PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  })
+
+  $('#fichier-video').addEventListener('change', async (e) => {
+    const f = e.target.files[0]
+    e.target.value = ''
+    if (!f) return
+    if (f.size > 4 * 1024 * 1024) {
+      toast(`❌ Vidéo trop lourde (${(f.size / 1048576).toFixed(1)} Mo). Maximum 4 Mo : raccourcissez-la ou envoyez-la par WhatsApp à votre webmaster.`, true)
+      return
+    }
+    try {
+      voile('Préparation de l\'aperçu…')
+      const apercu = await apercuVideo(f)
+      voile('Envoi de la vidéo…')
+      const sha = await envoyerFichier(f)
+      const apercuSha = apercu ? await envoyerFichier(apercu) : null
+      voile('Publication…')
+      const ext = (f.name.match(/\.(mp4|webm|mov|m4v)$/i)?.[0] || '.mp4').toLowerCase()
+      await api('enregistrer', { ajouts: [{ genre: 'videos', dossier: categorie, nom: nomSans(f.name) + ext, sha, apercuSha }] })
+      await recharger()
+      toast(PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  })
+
+  /* ─────────── Photos du site ─────────── */
+  function afficherSlots() {
+    $('#slots').replaceChildren(...etat.site.map((s) => {
+      const carte = document.createElement('div')
+      carte.className = 'carte slot'
+      if (s.chemin && !s.parDefaut) carte.append(vignette(s.chemin, 'Bientôt'))
+      else carte.append(Object.assign(document.createElement('div'), { className: 'ph' }))
+      const d = document.createElement('div')
+      d.append(Object.assign(document.createElement('p'), { textContent: s.label }))
+      const b = document.createElement('button')
+      b.type = 'button'
+      b.className = 'btn'
+      b.textContent = s.parDefaut ? 'Ajouter une photo' : 'Changer la photo'
+      b.addEventListener('click', () => { slotEnCours = s.id; $('#fichier-slot').click() })
+      d.append(b)
+      carte.append(d)
+      return carte
+    }))
+  }
+
+  $('#fichier-slot').addEventListener('change', async (e) => {
+    const f = e.target.files[0]
+    e.target.value = ''
+    if (!f || !slotEnCours) return
+    try {
+      voile('Envoi de la photo…')
+      const { blob, w, h } = await compresser(f, 1400)
+      const sha = await envoyerFichier(blob)
+      voile('Publication…')
+      await api('enregistrer', { images: [{ slot: slotEnCours, sha, w, h }] })
+      await recharger()
+      toast(PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  })
+
+  /* ─────────── Équipe ─────────── */
+  function champ(libelle, valeur, attrs = {}) {
+    const l = document.createElement('label')
+    l.className = 'champ'
+    l.append(libelle)
+    const i = document.createElement(attrs.textarea ? 'textarea' : 'input')
+    if (!attrs.textarea) i.type = 'text'
+    i.value = valeur ?? ''
+    if (attrs.max) i.maxLength = attrs.max
+    if (attrs.placeholder) i.placeholder = attrs.placeholder
+    l.append(i)
+    return { l, i }
+  }
+
+  function afficherEquipe() {
+    $('#membres').replaceChildren(...etat.equipe.map((m, n) => {
+      const carte = document.createElement('div')
+      carte.className = 'carte'
+      carte.append(Object.assign(document.createElement('div'), { className: 'carte-titre', textContent: 'Personne ' + (n + 1) }))
+      const nom = champ('Nom', m.nom === 'À compléter' ? '' : m.nom, { max: 60, placeholder: 'ex. Daniel' })
+      const role = champ('Rôle', m.role, { max: 80, placeholder: 'ex. Coiffeur, barbier' })
+      const rang = document.createElement('div')
+      rang.className = 'rang'
+      rang.append(nom.l, role.l)
+      carte.append(rang)
+      carte.lire = () => ({ nom: nom.i.value, role: role.i.value })
+      return carte
+    }))
+  }
+
+  $('#enr-equipe').addEventListener('click', async () => {
+    const equipe = [...$('#membres').children].map((c) => c.lire())
+    voile('Enregistrement…')
+    try {
+      const d = await api('enregistrer', { equipe })
+      await recharger()
+      toast(d.rien ? 'Aucun changement.' : PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  })
+
+  /* ─────────── Avis ─────────── */
+  function carteAvis(a = { note: 5, texte: '', nom: '', prestation: '' }) {
+    const carte = document.createElement('div')
+    carte.className = 'carte'
+    const titre = document.createElement('div')
+    titre.className = 'carte-titre'
+    const note = document.createElement('select')
+    note.setAttribute('aria-label', 'Note')
+    note.style.cssText = 'width:auto;margin:0'
+    for (let i = 5; i >= 1; i -= 1) note.append(new Option('★'.repeat(i) + '☆'.repeat(5 - i), i, false, i === a.note))
+    const x = document.createElement('button')
+    x.type = 'button'
+    x.textContent = 'Retirer'
+    x.addEventListener('click', () => { if (confirm('Retirer cet avis ?')) carte.remove() })
+    titre.append(note, x)
+    const texte = champ('Avis du client', a.texte, { textarea: true, max: 400 })
+    const nom = champ('Prénom', a.nom, { max: 40, placeholder: 'ex. Awa K.' })
+    const prest = champ('Prestation', a.prestation, { max: 60, placeholder: 'ex. Tresses' })
+    const rang = document.createElement('div')
+    rang.className = 'rang'
+    rang.append(nom.l, prest.l)
+    carte.append(titre, texte.l, rang)
+    carte.lire = () => ({ note: Number(note.value), texte: texte.i.value, nom: nom.i.value, prestation: prest.i.value })
+    return carte
+  }
+
+  function afficherAvis() {
+    $('#liste-avis').replaceChildren(...etat.avis.map(carteAvis))
+    $('#lien-google').value = etat.avisGoogle || ''
+  }
+  $('#ajout-avis').addEventListener('click', () => {
+    const c = carteAvis()
+    $('#liste-avis').append(c)
+    c.querySelector('textarea').focus()
+  })
+
+  $('#enr-avis').addEventListener('click', async () => {
+    const avis = [...$('#liste-avis').children].map((c) => c.lire())
+    voile('Enregistrement…')
+    try {
+      const d = await api('enregistrer', { avis, avisGoogle: $('#lien-google').value.trim() })
+      await recharger()
+      toast(d.rien ? 'Aucun changement.' : PUBLIE)
+    } catch (err) { toast('❌ ' + err.message, true) } finally { voile(null) }
+  })
+
+  /* ─────────── Démarrage ─────────── */
+  jeton = stock.lire()
+  if (jeton) demarrer()
+})()
+</script>
+</body>
+</html>

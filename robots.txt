@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /gestion/
 
 Sitemap: https://www.zakpa-coiffure.ci/sitemap.xml
