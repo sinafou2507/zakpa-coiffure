@@ -514,6 +514,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .footer__bottom p { margin: 0; }
 .footer__legal a:hover { color: var(--text); }
+.footer__credit a { color: var(--muted); transition: color .2s; }
+.footer__credit a:hover { color: var(--gold-lt); }
+@media (min-width: 901px) { .footer__bottom .footer__credit { margin-right: 76px; } } /* laisse la place au bouton WhatsApp flottant */
 
 /* ─────────────────────────── 14. BARRE MOBILE / BOUTON FLOTTANT ─────────────────────────── */
 .mobile-bar { display: none; }
