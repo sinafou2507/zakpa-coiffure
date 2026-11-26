@@ -13,3 +13,6 @@ public/
 # Copies de sécurité manuelles (ancien design, anciennes versions)
 *.avant-*
 *.avant-redesign.css
+
+# Devis et documents commerciaux (privés, jamais publiés)
+devis/

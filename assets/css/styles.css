@@ -465,6 +465,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .hours li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
 .hours li.is-today { color: var(--gold-lt); font-weight: 700; }
 .hours li.is-today span:last-child { color: var(--gold-lt); }
+.hours li small { display: block; font-size: .78rem; font-weight: 500; color: var(--muted); }
 
 .address { color: var(--muted); line-height: 1.7; }
 .address strong { color: var(--text); }
@@ -478,6 +479,18 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .map { flex: 1; min-height: 260px; border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-alt); border: 1px solid var(--line); }
 .map iframe { width: 100%; height: 100%; min-height: 260px; border: 0; filter: grayscale(.4) contrast(1.05); }
+.map { position: relative; }
+.map__open {
+  position: absolute; inset: 0; z-index: 2; display: flex; align-items: flex-end; justify-content: center; padding: 1rem;
+  background: linear-gradient(transparent 60%, rgba(10, 9, 8, .55));
+}
+.map__open span {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .6rem 1.1rem; border-radius: 999px;
+  background: var(--gold-grad); color: #1a1408; font-weight: 700; font-size: .88rem; box-shadow: var(--shadow-sm);
+  transition: transform .25s var(--ease);
+}
+.map__open svg { width: 16px; height: 16px; }
+.map__open:hover span { transform: translateY(-2px); }
 .map__placeholder {
   height: 100%; min-height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: .8rem; padding: 1.5rem; text-align: center;

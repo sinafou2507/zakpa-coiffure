@@ -300,22 +300,37 @@
   }
 
   /* ════════════════════════════════════════════════════════════════════
-     7. CARTE GOOGLE MAPS : chargement à la demande (vie privée)
-     Aucune requête vers Google n'est faite tant que l'internaute n'a pas
-     cliqué : pas de cookies déposés sans consentement.
+     7. CARTE GOOGLE MAPS : chargée automatiquement quand le visiteur
+     approche de la section (pas avant, pour garder la page rapide).
+     Le bouton « Afficher la carte » reste en secours.
      ════════════════════════════════════════════════════════════════════ */
   const map = $('#map')
-  $('#map-load')?.addEventListener('click', () => {
+  function chargerCarte() {
+    if (!map || map.querySelector('iframe')) return
     const query = map.dataset.query || ''
     const iframe = document.createElement('iframe')
-    iframe.src = 'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&output=embed'
-    iframe.title = 'Carte : ' + query
-    iframe.loading = 'lazy'
+    iframe.src = 'https://www.google.com/maps?q=' + encodeURIComponent(query) + '&z=17&output=embed'
+    iframe.title = 'Carte : ' + (map.dataset.label || query)
     iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade')
     iframe.setAttribute('allowfullscreen', '')
+    // Un clic sur la carte ouvre Google Maps avec l'épingle exactement sur
+    // le salon (le lien « Agrandir le plan » de Google, lui, la perd).
+    const lien = document.createElement('a')
+    lien.className = 'map__open'
+    lien.href = map.dataset.link || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(query))
+    lien.target = '_blank'
+    lien.rel = 'noopener'
+    lien.innerHTML = '<span>Ouvrir dans Google Maps <svg aria-hidden="true"><use href="#i-arrow"/></svg></span>'
     map.innerHTML = ''
-    map.appendChild(iframe)
-  })
+    map.append(iframe, lien)
+  }
+  $('#map-load')?.addEventListener('click', chargerCarte)
+  if (map && 'IntersectionObserver' in window) {
+    const ioCarte = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { ioCarte.disconnect(); chargerCarte() }
+    }, { rootMargin: '400px 0px' })
+    ioCarte.observe(map)
+  }
 
   /* ════════════════════════════════════════════════════════════════════
      7 bis. TITRE QUI S'ÉCRIT TOUT SEUL (effet machine à écrire)
